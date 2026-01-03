@@ -59,7 +59,13 @@ class Group(BaseModel, BaseStage):
         ...     total={"$sum": "$quantity"},
         ...     count={"$sum": 1}
         ... ).model_dump()
-        {"$group": {"_id": "$category", "total": {"$sum": "$quantity"}, "count": {"$sum": 1}}}
+        {
+            "$group": {
+                "_id": "$category",
+                "total": {"$sum": "$quantity"},
+                "count": {"$sum": 1}
+            }
+        }
     """
 
     model_config = ConfigDict(populate_by_name=True, extra="forbid")

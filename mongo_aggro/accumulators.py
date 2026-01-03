@@ -147,7 +147,10 @@ class Push(Accumulator):
         >>> Push(name="items", field="item").model_dump()
         {"items": {"$push": "$item"}}
 
-        >>> Push(name="details", expression={"name": "$name", "qty": "$qty"}).model_dump()
+        >>> Push(
+            name="details",
+            expression={"name": "$name", "qty": "$qty"}
+        ).model_dump()
         {"details": {"$push": {"name": "$name", "qty": "$qty"}}}
     """
 
@@ -259,7 +262,7 @@ class Accumulate(Accumulator):
     $accumulator - custom JavaScript accumulator (MongoDB 4.4+).
 
     Example:
-        >>> Accumulate(
+        >>> Accumulate(  # noqa
         ...     name="custom",
         ...     init="function() { return { count: 0 } }",
         ...     accumulate="function(state, val) { state.count++; return state }",
@@ -314,7 +317,12 @@ class TopN(Accumulator):
         ...     sort_by={"score": -1},
         ...     output="$item"
         ... ).model_dump()
-        {"top3": {"$topN": {"n": 3, "sortBy": {"score": -1}, "output": "$item"}}}
+        {
+            "top3": {
+                "$topN": {"n": 3, "sortBy": {"score": -1},
+                "output": "$item"}
+            }
+        }
     """
 
     n: int = Field(..., gt=0, description="Number of results")
@@ -349,7 +357,12 @@ class BottomN(Accumulator):
         ...     sort_by={"score": -1},
         ...     output="$item"
         ... ).model_dump()
-        {"bottom3": {"$bottomN": {"n": 3, "sortBy": {"score": -1}, "output": "$item"}}}
+        {
+            "bottom3": {
+                "$bottomN": {"n": 3, "sortBy": {"score": -1},
+                "output": "$item"}
+            }
+        }
     """
 
     n: int = Field(..., gt=0, description="Number of results")
@@ -447,7 +460,13 @@ def merge_accumulators(*accumulators: Accumulator) -> dict[str, Any]:
         ...     Avg(name="average", field="amount"),
         ...     Count_(name="count")
         ... )
-        {"total": {"$sum": "$amount"}, "average": {"$avg": "$amount"}, "count": {"$count": {}}}
+        {
+            "total": {
+                "$sum": "$amount"},
+                "average": {"$avg": "$amount"},
+                "count": {"$count": {}
+            }
+        }
     """
     result: dict[str, Any] = {}
     for acc in accumulators:
