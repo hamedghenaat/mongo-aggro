@@ -99,6 +99,7 @@ jobs:
 
       - name: Commit version bump
         run: |
+          git pull --rebase origin main
           git add pyproject.toml
           git commit -m "chore: bump version to ${{ steps.bump.outputs.version }}"
           git push
