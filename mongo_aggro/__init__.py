@@ -41,7 +41,14 @@ from .accumulators import (
     TopN,
     merge_accumulators,
 )
-from .base import BaseStage, Pipeline
+from .base import (
+    ASCENDING,
+    DESCENDING,
+    AggregationInput,
+    BaseStage,
+    Pipeline,
+    SortSpec,
+)
 from .operators import (
     All,
     And,
@@ -97,9 +104,14 @@ from .stages import (
 )
 
 __all__ = [
-    # Base classes
+    # Base classes and types
     "Pipeline",
     "BaseStage",
+    "SortSpec",
+    "AggregationInput",
+    # Sort direction constants
+    "ASCENDING",
+    "DESCENDING",
     # Query operators
     "QueryOperator",
     "And",

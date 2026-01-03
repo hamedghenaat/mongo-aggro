@@ -84,6 +84,11 @@ nav:
       - Stages: guide/stages.md
       - Accumulators: guide/accumulators.md
       - Operators: guide/operators.md
+  - Integrations:
+      - Overview: integrations/index.md
+      - Beanie ODM: integrations/beanie.md
+      - MongoEngine: integrations/mongoengine.md
+      - PyMongo: integrations/pymongo.md
   - Examples:
       - Basic Examples: examples/basic.md
       - Advanced Examples: examples/advanced.md

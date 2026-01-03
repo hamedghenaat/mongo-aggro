@@ -7,14 +7,15 @@ This page shows basic examples of common aggregation patterns using Mongo Aggro.
 ### Get Active Users Sorted by Date
 
 ```python
-from mongo_aggro import Pipeline, Match, Sort, Limit
+from mongo_aggro import Pipeline, Match, Sort, Limit, DESCENDING
 
 pipeline = Pipeline([
     Match(query={"status": "active"}),
-    Sort(fields={"createdAt": -1}),
+    Sort(fields={"createdAt": DESCENDING}),
     Limit(count=100),
 ])
 
+# Pass pipeline directly - no to_list() needed!
 results = collection.aggregate(pipeline)
 ```
 
@@ -43,11 +44,11 @@ pipeline = Pipeline([
 ### Count by Category
 
 ```python
-from mongo_aggro import Pipeline, Group, Sort
+from mongo_aggro import Pipeline, Group, Sort, DESCENDING
 
 pipeline = Pipeline([
     Group(id="$category", accumulators={"count": {"$sum": 1}}),
-    Sort(fields={"count": -1}),
+    Sort(fields={"count": DESCENDING}),
 ])
 ```
 
@@ -56,7 +57,7 @@ pipeline = Pipeline([
 ```python
 from mongo_aggro import (
     Pipeline, Match, Group, Sort,
-    Sum, Avg, merge_accumulators
+    Sum, Avg, merge_accumulators, DESCENDING
 )
 
 pipeline = Pipeline([
@@ -69,21 +70,21 @@ pipeline = Pipeline([
             Avg(name="avgPrice", field="price"),
         )
     ),
-    Sort(fields={"totalSales": -1}),
+    Sort(fields={"totalSales": DESCENDING}),
 ])
 ```
 
 ### Group by Multiple Fields
 
 ```python
-from mongo_aggro import Pipeline, Group, Sort, Sum
+from mongo_aggro import Pipeline, Group, Sort, Sum, DESCENDING
 
 pipeline = Pipeline([
     Group(
         id={"year": "$year", "month": "$month"},
         accumulators={"total": {"$sum": "$amount"}}
     ),
-    Sort(fields={"_id.year": -1, "_id.month": -1}),
+    Sort(fields={"_id.year": DESCENDING, "_id.month": DESCENDING}),
 ])
 ```
 
@@ -92,12 +93,12 @@ pipeline = Pipeline([
 ### Unwind and Count
 
 ```python
-from mongo_aggro import Pipeline, Unwind, Group, Sort
+from mongo_aggro import Pipeline, Unwind, Group, Sort, DESCENDING
 
 pipeline = Pipeline([
     Unwind(path="tags"),
     Group(id="$tags", accumulators={"count": {"$sum": 1}}),
-    Sort(fields={"count": -1}),
+    Sort(fields={"count": DESCENDING}),
 ])
 ```
 
@@ -122,14 +123,14 @@ pipeline = Pipeline([
 ### Basic Pagination
 
 ```python
-from mongo_aggro import Pipeline, Match, Sort, Skip, Limit
+from mongo_aggro import Pipeline, Match, Sort, Skip, Limit, DESCENDING
 
 page = 2
 page_size = 20
 
 pipeline = Pipeline([
     Match(query={"status": "active"}),
-    Sort(fields={"createdAt": -1}),
+    Sort(fields={"createdAt": DESCENDING}),
     Skip(count=(page - 1) * page_size),
     Limit(count=page_size),
 ])
@@ -138,7 +139,9 @@ pipeline = Pipeline([
 ### Pagination with Total Count
 
 ```python
-from mongo_aggro import Pipeline, Match, Facet, Sort, Skip, Limit, Count
+from mongo_aggro import (
+    Pipeline, Match, Facet, Sort, Skip, Limit, Count, DESCENDING
+)
 
 page = 2
 page_size = 20
@@ -147,7 +150,7 @@ pipeline = Pipeline([
     Match(query={"status": "active"}),
     Facet(pipelines={
         "data": Pipeline([
-            Sort(fields={"createdAt": -1}),
+            Sort(fields={"createdAt": DESCENDING}),
             Skip(count=(page - 1) * page_size),
             Limit(count=page_size),
         ]),

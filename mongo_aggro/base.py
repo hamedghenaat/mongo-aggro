@@ -2,10 +2,20 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Self
 
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
+
+# Sort direction constants for use with Sort stage and with_sort method
+ASCENDING: int = 1
+DESCENDING: int = -1
+
+# Type alias for sort specification used in aggregation
+# Uses int to be compatible with both Literal[-1, 1] and regular int values
+SortSpec = dict[str, int]
+# Type alias for aggregation input tuple (pipeline, sort)
+AggregationInput = tuple[list[dict[str, Any]], SortSpec]
 
 
 class BaseStage(ABC):
@@ -52,7 +62,7 @@ class Pipeline:
         """
         self._stages: list[BaseStage] = stages or []
 
-    def add_stage(self, stage: BaseStage) -> "Pipeline":
+    def add_stage(self, stage: BaseStage) -> Self:
         """
         Append a new stage to the pipeline.
 
@@ -60,7 +70,7 @@ class Pipeline:
             stage: A pipeline stage instance
 
         Returns:
-            Pipeline: Self for method chaining
+            Self: Self for method chaining
         """
         self._stages.append(stage)
         return self
@@ -95,6 +105,73 @@ class Pipeline:
         """
         return list(self)
 
+    def with_sort(self, sort: SortSpec) -> AggregationInput:
+        """
+        Return pipeline as aggregation input tuple with sort specification.
+
+        This is useful for integrating with pagination utilities that
+        expect a tuple of (pipeline, sort_spec). Common in Beanie ODM
+        pagination patterns.
+
+        Args:
+            sort: Sort specification dict with field names as keys
+                  and -1 (descending) or 1 (ascending) as values
+
+        Returns:
+            AggregationInput: Tuple of (pipeline_list, sort_spec)
+
+        Example:
+            >>> pipeline = Pipeline([
+            ...     Match(query={"status": "active"}),
+            ...     Group(id="$category", total={"$sum": "$amount"})
+            ... ])
+            >>> # Use with pagination utilities
+            >>> aggregation_input = pipeline.with_sort({"total": -1})
+            >>> await query.paginate_and_cast(
+            ...     query=base_query,
+            ...     projection_model=OutputModel,
+            ...     aggregation_input=aggregation_input
+            ... )
+        """
+        return (self.to_list(), sort)
+
+    def extend(self, stages: list[BaseStage]) -> Self:
+        """
+        Extend the pipeline with multiple stages.
+
+        Args:
+            stages: List of pipeline stages to add
+
+        Returns:
+            Self: Self for method chaining
+        """
+        self._stages.extend(stages)
+        return self
+
+    def extend_raw(self, raw_stages: list[dict[str, Any]]) -> Self:
+        """
+        Extend the pipeline with raw dictionary stages.
+
+        This is useful when combining typed stages with raw MongoDB
+        pipeline stages that may not have a corresponding class.
+
+        Args:
+            raw_stages: List of raw MongoDB stage dictionaries
+
+        Returns:
+            Self: Self for method chaining
+
+        Example:
+            >>> pipeline = Pipeline([Match(query={"status": "active"})])
+            >>> pipeline.extend_raw([
+            ...     {"$addFields": {"computed": {"$multiply": ["$a", "$b"]}}},
+            ...     {"$project": {"_id": 0, "result": "$computed"}}
+            ... ])
+        """
+        for raw_stage in raw_stages:
+            self._stages.append(_RawStage(raw_stage))
+        return self
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
@@ -106,3 +183,13 @@ class Pipeline:
         for example in Lookup's pipeline field.
         """
         return core_schema.is_instance_schema(cls)
+
+
+class _RawStage(BaseStage):
+    """Internal class for wrapping raw dictionary stages."""
+
+    def __init__(self, raw: dict[str, Any]) -> None:
+        self._raw = raw
+
+    def model_dump(self) -> dict[str, Any]:
+        return self._raw

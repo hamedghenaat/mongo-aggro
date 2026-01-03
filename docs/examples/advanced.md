@@ -30,7 +30,7 @@ pipeline = Pipeline([
 ### Lookup with Pipeline
 
 ```python
-from mongo_aggro import Pipeline, Match, Lookup, Project
+from mongo_aggro import Pipeline, Match, Lookup, Project, Unwind, Group
 
 pipeline = Pipeline([
     Lookup(
@@ -96,7 +96,7 @@ pipeline = Pipeline([
 
 ```python
 from mongo_aggro import (
-    Pipeline, Match, Facet, Group, Sort, Limit, Count, Sum
+    Pipeline, Match, Facet, Group, Sort, Limit, Count, Sum, DESCENDING
 )
 
 pipeline = Pipeline([
@@ -104,7 +104,7 @@ pipeline = Pipeline([
     Facet(pipelines={
         "byCategory": Pipeline([
             Group(id="$category", accumulators={"count": {"$sum": 1}}),
-            Sort(fields={"count": -1}),
+            Sort(fields={"count": DESCENDING}),
         ]),
         "byPriceRange": Pipeline([
             Group(
@@ -122,7 +122,7 @@ pipeline = Pipeline([
         ]),
         "topRated": Pipeline([
             Match(query={"rating": {"$gte": 4.5}}),
-            Sort(fields={"rating": -1}),
+            Sort(fields={"rating": DESCENDING}),
             Limit(count=5),
         ]),
         "stats": Pipeline([
@@ -143,12 +143,12 @@ pipeline = Pipeline([
 ### Running Totals
 
 ```python
-from mongo_aggro import Pipeline, Sort, SetWindowFields
+from mongo_aggro import Pipeline, Sort, SetWindowFields, ASCENDING
 
 pipeline = Pipeline([
-    Sort(fields={"date": 1}),
+    Sort(fields={"date": ASCENDING}),
     SetWindowFields(
-        sort_by={"date": 1},
+        sort_by={"date": ASCENDING},
         output={
             "runningTotal": {
                 "$sum": "$amount",
@@ -162,12 +162,12 @@ pipeline = Pipeline([
 ### Moving Average
 
 ```python
-from mongo_aggro import Pipeline, SetWindowFields
+from mongo_aggro import Pipeline, SetWindowFields, ASCENDING
 
 pipeline = Pipeline([
     SetWindowFields(
         partition_by="$productId",
-        sort_by={"date": 1},
+        sort_by={"date": ASCENDING},
         output={
             "movingAvg": {
                 "$avg": "$price",
@@ -248,7 +248,7 @@ pipeline = Pipeline([
 ### Combining Collections
 
 ```python
-from mongo_aggro import Pipeline, Match, UnionWith, Sort, Project
+from mongo_aggro import Pipeline, Match, UnionWith, Sort, Project, DESCENDING
 
 pipeline = Pipeline([
     Match(query={"type": "order"}),
@@ -267,7 +267,7 @@ pipeline = Pipeline([
             }),
         ])
     ),
-    Sort(fields={"date": -1}),
+    Sort(fields={"date": DESCENDING}),
 ])
 ```
 
@@ -300,11 +300,11 @@ pipeline = Pipeline([
 ### Full-Text Search with Scoring
 
 ```python
-from mongo_aggro import Pipeline, Match, AddFields, Sort
+from mongo_aggro import Pipeline, Match, AddFields, Sort, DESCENDING
 
 pipeline = Pipeline([
     Match(query={"$text": {"$search": "coffee shop"}}),
     AddFields(fields={"score": {"$meta": "textScore"}}),
-    Sort(fields={"score": -1}),
+    Sort(fields={"score": DESCENDING}),
 ])
 ```

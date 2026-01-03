@@ -2,7 +2,7 @@
 
 import pytest
 
-from mongo_aggro import Match, Pipeline, Unwind
+from mongo_aggro import ASCENDING, DESCENDING, Match, Pipeline, Sort, Unwind
 
 # --- Initialization Tests ---
 
@@ -27,6 +27,33 @@ def test_pipeline_init_with_none() -> None:
     """Pipeline handles None as empty list."""
     pipeline = Pipeline(None)
     assert len(pipeline) == 0
+
+
+# --- Sort Direction Constants Tests ---
+
+
+def test_ascending_constant_value() -> None:
+    """ASCENDING constant equals 1."""
+    assert ASCENDING == 1
+
+
+def test_descending_constant_value() -> None:
+    """DESCENDING constant equals -1."""
+    assert DESCENDING == -1
+
+
+def test_sort_with_constants() -> None:
+    """Sort stage works with direction constants."""
+    sort_stage = Sort(fields={"created_at": DESCENDING, "name": ASCENDING})
+    result = sort_stage.model_dump()
+    assert result == {"$sort": {"created_at": -1, "name": 1}}
+
+
+def test_with_sort_using_constants() -> None:
+    """with_sort works with direction constants."""
+    pipeline = Pipeline([Match(query={"status": "active"})])
+    result = pipeline.with_sort({"total": DESCENDING, "name": ASCENDING})
+    assert result[1] == {"total": -1, "name": 1}
 
 
 # --- add_stage Tests ---
@@ -145,3 +172,176 @@ def test_to_list_is_new_list() -> None:
     list2 = pipeline.to_list()
     assert list1 == list2
     assert list1 is not list2
+
+
+# --- with_sort Tests ---
+
+
+def test_with_sort_returns_tuple() -> None:
+    """with_sort returns a tuple of (list, dict)."""
+    pipeline = Pipeline([Match(query={"status": "active"})])
+    result = pipeline.with_sort({"created_at": -1})
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+    assert isinstance(result[0], list)
+    assert isinstance(result[1], dict)
+
+
+def test_with_sort_pipeline_list() -> None:
+    """with_sort tuple contains correct pipeline list."""
+    pipeline = Pipeline(
+        [
+            Match(query={"a": 1}),
+            Unwind(path="items"),
+        ]
+    )
+    result = pipeline.with_sort({"total": -1})
+    assert result[0] == [
+        {"$match": {"a": 1}},
+        {"$unwind": "$items"},
+    ]
+
+
+def test_with_sort_sort_spec() -> None:
+    """with_sort tuple contains correct sort spec."""
+    pipeline = Pipeline([Match(query={"a": 1})])
+    sort_spec = {"total": -1, "name": 1}
+    result = pipeline.with_sort(sort_spec)
+    assert result[1] == sort_spec
+
+
+def test_with_sort_empty_pipeline() -> None:
+    """with_sort works with empty pipeline."""
+    pipeline = Pipeline()
+    result = pipeline.with_sort({"_id": 1})
+    assert result == ([], {"_id": 1})
+
+
+# --- extend Tests ---
+
+
+def test_extend_adds_stages() -> None:
+    """extend adds multiple stages."""
+    pipeline = Pipeline([Match(query={"a": 1})])
+    pipeline.extend(
+        [
+            Unwind(path="items"),
+            Match(query={"b": 2}),
+        ]
+    )
+    assert len(pipeline) == 3
+
+
+def test_extend_returns_pipeline() -> None:
+    """extend returns self for chaining."""
+    pipeline = Pipeline()
+    result = pipeline.extend([Match(query={"a": 1})])
+    assert result is pipeline
+
+
+def test_extend_empty_list() -> None:
+    """extend with empty list doesn't change pipeline."""
+    pipeline = Pipeline([Match(query={"a": 1})])
+    pipeline.extend([])
+    assert len(pipeline) == 1
+
+
+def test_extend_chaining() -> None:
+    """extend can be chained."""
+    pipeline = (
+        Pipeline()
+        .extend([Match(query={"a": 1})])
+        .extend([Unwind(path="items")])
+    )
+    assert len(pipeline) == 2
+
+
+# --- extend_raw Tests ---
+
+
+def test_extend_raw_adds_dict_stages() -> None:
+    """extend_raw adds raw dictionary stages."""
+    pipeline = Pipeline([Match(query={"a": 1})])
+    pipeline.extend_raw(
+        [
+            {"$addFields": {"computed": {"$sum": ["$x", "$y"]}}},
+            {"$project": {"_id": 0, "result": "$computed"}},
+        ]
+    )
+    assert len(pipeline) == 3
+    stages = pipeline.to_list()
+    assert stages[1] == {"$addFields": {"computed": {"$sum": ["$x", "$y"]}}}
+    assert stages[2] == {"$project": {"_id": 0, "result": "$computed"}}
+
+
+def test_extend_raw_returns_pipeline() -> None:
+    """extend_raw returns self for chaining."""
+    pipeline = Pipeline()
+    result = pipeline.extend_raw([{"$match": {"a": 1}}])
+    assert result is pipeline
+
+
+def test_extend_raw_with_typed_stages() -> None:
+    """extend_raw works alongside typed stages."""
+    pipeline = Pipeline([Match(query={"status": "active"})])
+    pipeline.add_stage(Unwind(path="items"))
+    pipeline.extend_raw(
+        [
+            {
+                "$lookup": {
+                    "from": "other",
+                    "localField": "id",
+                    "foreignField": "_id",
+                    "as": "joined",
+                }
+            }
+        ]
+    )
+    pipeline.add_stage(Match(query={"joined": {"$ne": []}}))
+
+    stages = pipeline.to_list()
+    assert len(stages) == 4
+    assert "$match" in stages[0]
+    assert "$unwind" in stages[1]
+    assert "$lookup" in stages[2]
+    assert "$match" in stages[3]
+
+
+def test_extend_raw_empty_list() -> None:
+    """extend_raw with empty list doesn't change pipeline."""
+    pipeline = Pipeline([Match(query={"a": 1})])
+    pipeline.extend_raw([])
+    assert len(pipeline) == 1
+
+
+def test_extend_raw_complex_stage() -> None:
+    """extend_raw handles complex nested stages."""
+    pipeline = Pipeline()
+    pipeline.extend_raw(
+        [
+            {
+                "$lookup": {
+                    "from": "targets",
+                    "let": {"agency_id": "$agency_id"},
+                    "pipeline": [
+                        {
+                            "$match": {
+                                "$expr": {"$eq": ["$AgencyId", "$$agency_id"]}
+                            }
+                        },
+                        {
+                            "$group": {
+                                "_id": None,
+                                "total": {"$sum": "$amount"},
+                            }
+                        },
+                    ],
+                    "as": "target",
+                }
+            }
+        ]
+    )
+    stages = pipeline.to_list()
+    assert len(stages) == 1
+    assert stages[0]["$lookup"]["let"] == {"agency_id": "$agency_id"}
+    assert len(stages[0]["$lookup"]["pipeline"]) == 2

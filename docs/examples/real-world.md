@@ -1,6 +1,7 @@
 # Real-World Use Cases
 
-This page demonstrates real-world aggregation pipelines for common business scenarios.
+This page demonstrates real-world aggregation pipelines for common business
+scenarios.
 
 ## E-Commerce Analytics
 
@@ -9,7 +10,7 @@ This page demonstrates real-world aggregation pipelines for common business scen
 ```python
 from mongo_aggro import (
     Pipeline, Match, Unwind, Group, Sort, Limit, Project,
-    Sum, Avg, Max, Min, Count_, merge_accumulators
+    Sum, Avg, Max, Min, Count_, merge_accumulators, DESCENDING
 )
 
 def get_sales_dashboard(start_date: str, end_date: str):
@@ -29,7 +30,7 @@ def get_sales_dashboard(start_date: str, end_date: str):
                 Count_(name="orderCount"),
             )
         ),
-        Sort(fields={"totalRevenue": -1}),
+        Sort(fields={"totalRevenue": DESCENDING}),
         Limit(count=20),
         Project(fields={
             "_id": 0,
@@ -45,7 +46,9 @@ def get_sales_dashboard(start_date: str, end_date: str):
 ### Customer Lifetime Value
 
 ```python
-from mongo_aggro import Pipeline, Match, Group, Sort, Project, Sum, Avg
+from mongo_aggro import (
+    Pipeline, Match, Group, Sort, Project, Sum, Avg, DESCENDING
+)
 
 def calculate_customer_ltv():
     """Calculate customer lifetime value."""
@@ -76,14 +79,16 @@ def calculate_customer_ltv():
                 ]
             },
         }),
-        Sort(fields={"totalSpent": -1}),
+        Sort(fields={"totalSpent": DESCENDING}),
     ])
 ```
 
 ### Cart Abandonment Analysis
 
 ```python
-from mongo_aggro import Pipeline, Match, Lookup, Group, Project
+from mongo_aggro import (
+    Pipeline, Match, Lookup, Group, Project, Unwind, Sort, DESCENDING
+)
 
 def analyze_cart_abandonment():
     """Analyze abandoned carts."""
@@ -118,7 +123,7 @@ def analyze_cart_abandonment():
             "avgCartValue": {"$round": ["$avgCartValue", 2]},
             "totalLostRevenue": {"$round": ["$totalLostRevenue", 2]},
         }),
-        Sort(fields={"totalLostRevenue": -1}),
+        Sort(fields={"totalLostRevenue": DESCENDING}),
     ])
 ```
 
@@ -128,7 +133,8 @@ def analyze_cart_abandonment():
 
 ```python
 from mongo_aggro import (
-    Pipeline, Match, Group, Sort, Project, Facet, Count
+    Pipeline, Match, Group, Sort, Project, Facet, Count, Limit, ASCENDING,
+    DESCENDING
 )
 
 def get_user_engagement(date: str):
@@ -155,14 +161,14 @@ def get_user_engagement(date: str):
                     id={"$hour": "$timestamp"},
                     accumulators={"count": {"$sum": 1}}
                 ),
-                Sort(fields={"_id": 1}),
+                Sort(fields={"_id": ASCENDING}),
             ]),
             "topUsers": Pipeline([
                 Group(
                     id="$userId",
                     accumulators={"activityCount": {"$sum": 1}}
                 ),
-                Sort(fields={"activityCount": -1}),
+                Sort(fields={"activityCount": DESCENDING}),
                 Limit(count=10),
             ]),
         }),
@@ -172,7 +178,9 @@ def get_user_engagement(date: str):
 ### Cohort Retention Analysis
 
 ```python
-from mongo_aggro import Pipeline, Match, AddFields, Group, Sort
+from mongo_aggro import (
+    Pipeline, Match, AddFields, Group, Sort, Lookup, Unwind, ASCENDING
+)
 
 def cohort_retention(cohort_month: str):
     """Analyze retention for a signup cohort."""
@@ -206,7 +214,7 @@ def cohort_retention(cohort_month: str):
             "month": "$_id",
             "activeCount": {"$size": "$activeUsers"},
         }),
-        Sort(fields={"month": 1}),
+        Sort(fields={"month": ASCENDING}),
     ])
 ```
 
@@ -215,7 +223,7 @@ def cohort_retention(cohort_month: str):
 ### Monthly Revenue Report
 
 ```python
-from mongo_aggro import Pipeline, Match, Group, Sort, Project
+from mongo_aggro import Pipeline, Match, Group, Sort, Project, ASCENDING
 
 def monthly_revenue_report(year: int):
     """Generate monthly revenue report."""
@@ -238,7 +246,7 @@ def monthly_revenue_report(year: int):
                 "avgOrderValue": {"$avg": "$total"},
             }
         ),
-        Sort(fields={"_id.year": 1, "_id.month": 1}),
+        Sort(fields={"_id.year": ASCENDING, "_id.month": ASCENDING}),
         Project(fields={
             "_id": 0,
             "year": "$_id.year",
@@ -286,7 +294,9 @@ def expense_report(department: str, year: int):
 ### Low Stock Alert
 
 ```python
-from mongo_aggro import Pipeline, Match, Lookup, Project, Sort
+from mongo_aggro import (
+    Pipeline, Match, Lookup, Project, Sort, AddFields, Group, ASCENDING
+)
 
 def get_low_stock_products(threshold: int = 10):
     """Find products with low stock."""
@@ -334,7 +344,7 @@ def get_low_stock_products(threshold: int = 10):
             },
         }),
         Match(query={"needsReorder": True}),
-        Sort(fields={"availableStock": 1}),
+        Sort(fields={"availableStock": ASCENDING}),
     ])
 ```
 
@@ -343,7 +353,7 @@ def get_low_stock_products(threshold: int = 10):
 ### Error Rate by Endpoint
 
 ```python
-from mongo_aggro import Pipeline, Match, Group, Sort, Project
+from mongo_aggro import Pipeline, Match, Group, Sort, Project, DESCENDING
 
 def error_rate_by_endpoint(start_time: str, end_time: str):
     """Calculate error rates by API endpoint."""
@@ -379,6 +389,6 @@ def error_rate_by_endpoint(start_time: str, end_time: str):
             },
             "avgResponseTime": {"$round": ["$avgResponseTime", 2]},
         }),
-        Sort(fields={"errorRate": -1}),
+        Sort(fields={"errorRate": DESCENDING}),
     ])
 ```
