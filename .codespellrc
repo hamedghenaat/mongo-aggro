@@ -1,0 +1,3 @@
+[codespell]
+skip = *.json,*.lock,*.min.js,.git,__pycache__,.mypy_cache,.pytest_cache,.venv,venv
+ignore-words-list = BottomN,Nin,bottomN,nin
