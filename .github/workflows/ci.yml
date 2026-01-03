@@ -62,8 +62,12 @@ jobs:
     environment: pypi
     permissions:
       id-token: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -75,8 +79,37 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          # Get current version
+          CURRENT=$(poetry version -s)
+          echo "Current version: $CURRENT"
+
+          # Bump patch version (0.1.0 -> 0.1.1)
+          poetry version patch
+          NEW_VERSION=$(poetry version -s)
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit version bump
+        run: |
+          git add pyproject.toml
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.version }}"
+          git push
+
       - name: Build package
         run: poetry build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create Git tag
+        run: |
+          git tag "v${{ steps.bump.outputs.version }}"
+          git push origin "v${{ steps.bump.outputs.version }}"
