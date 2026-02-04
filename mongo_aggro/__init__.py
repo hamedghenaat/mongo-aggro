@@ -58,21 +58,44 @@ from .base import (
     serialize_value,
 )
 from .expressions import (
+    # Arithmetic expressions
+    AbsExpr,
+    AddExpr,
     # Comparison expressions
     AndExpr,
+    # Array expressions
+    ArraySizeExpr,
     CmpExpr,
+    ConcatExpr,
+    # Conditional expressions
+    CondExpr,
+    DivideExpr,
     EqExpr,
     ExpressionBase,
     F,
     Field,
+    FilterExpr,
     GteExpr,
     GtExpr,
+    IfNullExpr,
     LteExpr,
     LtExpr,
+    MapExpr,
+    ModExpr,
+    MultiplyExpr,
     NeExpr,
     # Logical expressions
     NotExpr,
     OrExpr,
+    ReduceExpr,
+    SliceExpr,
+    # String expressions
+    SplitExpr,
+    SubtractExpr,
+    SwitchBranch,
+    SwitchExpr,
+    ToLowerExpr,
+    ToUpperExpr,
 )
 from .operators import (
     All,
@@ -152,6 +175,29 @@ __all__ = [
     "AndExpr",
     "OrExpr",
     "NotExpr",
+    # Arithmetic expressions
+    "AddExpr",
+    "SubtractExpr",
+    "MultiplyExpr",
+    "DivideExpr",
+    "AbsExpr",
+    "ModExpr",
+    # Conditional expressions
+    "CondExpr",
+    "IfNullExpr",
+    "SwitchExpr",
+    "SwitchBranch",
+    # String expressions
+    "ConcatExpr",
+    "SplitExpr",
+    "ToLowerExpr",
+    "ToUpperExpr",
+    # Array expressions
+    "ArraySizeExpr",
+    "SliceExpr",
+    "FilterExpr",
+    "MapExpr",
+    "ReduceExpr",
     # Query operators
     "QueryOperator",
     "And",

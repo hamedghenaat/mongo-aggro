@@ -345,3 +345,423 @@ class NotExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $not expression."""
         return {"$not": serialize_value(self.condition)}
+
+
+# --- Arithmetic Expression Operators ---
+
+
+class AddExpr(ExpressionBase):
+    """
+    $add expression operator - adds numbers or dates.
+
+    Example:
+        >>> AddExpr(operands=[F("price"), F("tax")]).model_dump()
+        {"$add": ["$price", "$tax"]}
+    """
+
+    operands: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $add expression."""
+        return {"$add": [serialize_value(o) for o in self.operands]}
+
+
+class SubtractExpr(ExpressionBase):
+    """
+    $subtract expression operator - subtracts two numbers or dates.
+
+    Example:
+        >>> SubtractExpr(left=F("total"), right=F("discount")).model_dump()
+        {"$subtract": ["$total", "$discount"]}
+    """
+
+    left: Any
+    right: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $subtract expression."""
+        return {"$subtract": [serialize_value(self.left), serialize_value(self.right)]}
+
+
+class MultiplyExpr(ExpressionBase):
+    """
+    $multiply expression operator - multiplies numbers.
+
+    Example:
+        >>> MultiplyExpr(operands=[F("price"), F("qty")]).model_dump()
+        {"$multiply": ["$price", "$qty"]}
+    """
+
+    operands: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $multiply expression."""
+        return {"$multiply": [serialize_value(o) for o in self.operands]}
+
+
+class DivideExpr(ExpressionBase):
+    """
+    $divide expression operator - divides two numbers.
+
+    Example:
+        >>> DivideExpr(dividend=F("total"), divisor=F("count")).model_dump()
+        {"$divide": ["$total", "$count"]}
+    """
+
+    dividend: Any
+    divisor: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $divide expression."""
+        return {
+            "$divide": [serialize_value(self.dividend), serialize_value(self.divisor)]
+        }
+
+
+class AbsExpr(ExpressionBase):
+    """
+    $abs expression operator - returns absolute value.
+
+    Example:
+        >>> AbsExpr(value=F("balance")).model_dump()
+        {"$abs": "$balance"}
+    """
+
+    value: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $abs expression."""
+        return {"$abs": serialize_value(self.value)}
+
+
+class ModExpr(ExpressionBase):
+    """
+    $mod expression operator - returns remainder of division.
+
+    Example:
+        >>> ModExpr(dividend=F("num"), divisor=2).model_dump()
+        {"$mod": ["$num", 2]}
+    """
+
+    dividend: Any
+    divisor: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $mod expression."""
+        return {
+            "$mod": [serialize_value(self.dividend), serialize_value(self.divisor)]
+        }
+
+
+# --- Conditional Expression Operators ---
+
+
+class CondExpr(ExpressionBase):
+    """
+    $cond expression operator - ternary conditional.
+
+    Example:
+        >>> CondExpr(
+        ...     if_=GtExpr(left=F("qty"), right=100),
+        ...     then="bulk",
+        ...     else_="retail"
+        ... ).model_dump()
+        {"$cond": {"if": {"$gt": ["$qty", 100]}, "then": "bulk", "else": "retail"}}
+    """
+
+    if_: Any
+    then: Any
+    else_: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $cond expression."""
+        return {
+            "$cond": {
+                "if": serialize_value(self.if_),
+                "then": serialize_value(self.then),
+                "else": serialize_value(self.else_),
+            }
+        }
+
+
+class IfNullExpr(ExpressionBase):
+    """
+    $ifNull expression operator - null coalescing.
+
+    Example:
+        >>> IfNullExpr(input=F("name"), replacement="Unknown").model_dump()
+        {"$ifNull": ["$name", "Unknown"]}
+    """
+
+    input: Any
+    replacement: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $ifNull expression."""
+        return {
+            "$ifNull": [serialize_value(self.input), serialize_value(self.replacement)]
+        }
+
+
+class SwitchBranch(BaseModel):
+    """A single branch in a $switch expression."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="forbid",
+    )
+
+    case: Any
+    then: Any
+
+
+class SwitchExpr(ExpressionBase):
+    """
+    $switch expression operator - multi-branch conditional.
+
+    Example:
+        >>> SwitchExpr(
+        ...     branches=[
+        ...         SwitchBranch(case=EqExpr(left=F("status"), right="A"), then=1),
+        ...         SwitchBranch(case=EqExpr(left=F("status"), right="B"), then=2),
+        ...     ],
+        ...     default=0
+        ... ).model_dump()
+        {"$switch": {"branches": [...], "default": 0}}
+    """
+
+    branches: list[SwitchBranch]
+    default: Any = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $switch expression."""
+        result: dict[str, Any] = {
+            "$switch": {
+                "branches": [
+                    {
+                        "case": serialize_value(b.case),
+                        "then": serialize_value(b.then),
+                    }
+                    for b in self.branches
+                ]
+            }
+        }
+        if self.default is not None:
+            result["$switch"]["default"] = serialize_value(self.default)
+        return result
+
+
+# --- String Expression Operators ---
+
+
+class ConcatExpr(ExpressionBase):
+    """
+    $concat expression operator - concatenates strings.
+
+    Example:
+        >>> ConcatExpr(strings=[F("first"), " ", F("last")]).model_dump()
+        {"$concat": ["$first", " ", "$last"]}
+    """
+
+    strings: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $concat expression."""
+        return {"$concat": [serialize_value(s) for s in self.strings]}
+
+
+class SplitExpr(ExpressionBase):
+    """
+    $split expression operator - splits string by delimiter.
+
+    Example:
+        >>> SplitExpr(input=F("fullName"), delimiter=" ").model_dump()
+        {"$split": ["$fullName", " "]}
+    """
+
+    input: Any
+    delimiter: str
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $split expression."""
+        return {"$split": [serialize_value(self.input), self.delimiter]}
+
+
+class ToLowerExpr(ExpressionBase):
+    """
+    $toLower expression operator - converts to lowercase.
+
+    Example:
+        >>> ToLowerExpr(input=F("name")).model_dump()
+        {"$toLower": "$name"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toLower expression."""
+        return {"$toLower": serialize_value(self.input)}
+
+
+class ToUpperExpr(ExpressionBase):
+    """
+    $toUpper expression operator - converts to uppercase.
+
+    Example:
+        >>> ToUpperExpr(input=F("name")).model_dump()
+        {"$toUpper": "$name"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toUpper expression."""
+        return {"$toUpper": serialize_value(self.input)}
+
+
+# --- Array Expression Operators ---
+
+
+class ArraySizeExpr(ExpressionBase):
+    """
+    $size expression operator - returns array length.
+
+    Example:
+        >>> ArraySizeExpr(array=F("items")).model_dump()
+        {"$size": "$items"}
+    """
+
+    array: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $size expression."""
+        return {"$size": serialize_value(self.array)}
+
+
+class SliceExpr(ExpressionBase):
+    """
+    $slice expression operator - returns subset of array.
+
+    Example:
+        >>> SliceExpr(array=F("items"), n=5).model_dump()
+        {"$slice": ["$items", 5]}
+
+        >>> SliceExpr(array=F("items"), position=2, n=3).model_dump()
+        {"$slice": ["$items", 2, 3]}
+    """
+
+    array: Any
+    n: int
+    position: int | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $slice expression."""
+        if self.position is not None:
+            return {"$slice": [serialize_value(self.array), self.position, self.n]}
+        return {"$slice": [serialize_value(self.array), self.n]}
+
+
+class FilterExpr(ExpressionBase):
+    """
+    $filter expression operator - filters array elements.
+
+    Example:
+        >>> FilterExpr(
+        ...     input=F("items"),
+        ...     as_="item",
+        ...     cond=GteExpr(left=Field("$$item.price"), right=100)
+        ... ).model_dump()
+        {"$filter": {"input": "$items", "as": "item", "cond": {...}}}
+    """
+
+    input: Any
+    cond: Any
+    as_: str = "this"
+    limit: int | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $filter expression."""
+        result: dict[str, Any] = {
+            "$filter": {
+                "input": serialize_value(self.input),
+                "as": self.as_,
+                "cond": serialize_value(self.cond),
+            }
+        }
+        if self.limit is not None:
+            result["$filter"]["limit"] = self.limit
+        return result
+
+
+class MapExpr(ExpressionBase):
+    """
+    $map expression operator - applies expression to each array element.
+
+    Example:
+        >>> MapExpr(
+        ...     input=F("items"),
+        ...     as_="item",
+        ...     in_=MultiplyExpr(operands=[Field("$$item.price"), 1.1])
+        ... ).model_dump()
+        {"$map": {"input": "$items", "as": "item", "in": {...}}}
+    """
+
+    input: Any
+    in_: Any
+    as_: str = "this"
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $map expression."""
+        return {
+            "$map": {
+                "input": serialize_value(self.input),
+                "as": self.as_,
+                "in": serialize_value(self.in_),
+            }
+        }
+
+
+class ReduceExpr(ExpressionBase):
+    """
+    $reduce expression operator - reduces array to single value.
+
+    Example:
+        >>> ReduceExpr(
+        ...     input=F("items"),
+        ...     initial_value=0,
+        ...     in_=AddExpr(operands=[Field("$$value"), Field("$$this.qty")])
+        ... ).model_dump()
+        {"$reduce": {"input": "$items", "initialValue": 0, "in": {...}}}
+    """
+
+    input: Any
+    initial_value: Any
+    in_: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $reduce expression."""
+        return {
+            "$reduce": {
+                "input": serialize_value(self.input),
+                "initialValue": serialize_value(self.initial_value),
+                "in": serialize_value(self.in_),
+            }
+        }

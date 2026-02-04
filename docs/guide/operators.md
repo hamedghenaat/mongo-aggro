@@ -110,6 +110,412 @@ pipeline = Pipeline([
 
 ---
 
+## Arithmetic Expressions
+
+Perform mathematical operations on field values.
+
+### AddExpr - Addition
+
+```python
+from mongo_aggro import F, AddExpr, Project, Pipeline
+
+# Add two fields
+total = AddExpr(operands=[F("price"), F("tax")])
+
+# Add multiple values
+pipeline = Pipeline([
+    Project(fields={
+        "total": AddExpr(operands=[F("subtotal"), F("tax"), F("shipping")]).model_dump(),
+        "adjusted": AddExpr(operands=[F("price"), 10]).model_dump(),
+    })
+])
+```
+
+### SubtractExpr - Subtraction
+
+```python
+from mongo_aggro import F, SubtractExpr
+
+# Calculate profit margin
+profit = SubtractExpr(left=F("revenue"), right=F("cost"))
+
+# Subtract a constant
+discounted = SubtractExpr(left=F("price"), right=5)
+```
+
+### MultiplyExpr - Multiplication
+
+```python
+from mongo_aggro import F, MultiplyExpr
+
+# Calculate line total
+line_total = MultiplyExpr(operands=[F("price"), F("quantity")])
+
+# Apply discount percentage
+discounted = MultiplyExpr(operands=[F("price"), 0.9])  # 10% off
+```
+
+### DivideExpr - Division
+
+```python
+from mongo_aggro import F, DivideExpr
+
+# Calculate average
+average = DivideExpr(dividend=F("total"), divisor=F("count"))
+
+# Calculate percentage
+percentage = DivideExpr(dividend=F("completed"), divisor=F("total"))
+```
+
+### Combining Arithmetic Expressions
+
+```python
+from mongo_aggro import F, AddExpr, MultiplyExpr, DivideExpr, Project, Pipeline
+
+# Complex calculation: (price * quantity) + tax
+pipeline = Pipeline([
+    Project(fields={
+        "final_price": AddExpr(operands=[
+            MultiplyExpr(operands=[F("price"), F("qty")]),
+            F("tax")
+        ]).model_dump()
+    })
+])
+
+# Nested: ((a + b) * c) / d
+result = DivideExpr(
+    dividend=MultiplyExpr(operands=[
+        AddExpr(operands=[F("a"), F("b")]),
+        F("c")
+    ]),
+    divisor=F("d")
+)
+```
+
+---
+
+## Conditional Expressions
+
+Implement branching logic in aggregation pipelines.
+
+### CondExpr - If/Then/Else
+
+```python
+from mongo_aggro import F, CondExpr, Project, Pipeline
+
+# Simple conditional
+pipeline = Pipeline([
+    Project(fields={
+        "category": CondExpr(
+            if_=(F("qty") > 100),
+            then="bulk",
+            else_="retail"
+        ).model_dump()
+    })
+])
+
+# Nested conditionals for multiple conditions
+tier = CondExpr(
+    if_=(F("score") >= 90),
+    then="gold",
+    else_=CondExpr(
+        if_=(F("score") >= 70),
+        then="silver",
+        else_="bronze"
+    )
+)
+```
+
+### IfNullExpr - Null Coalescing
+
+```python
+from mongo_aggro import F, IfNullExpr
+
+# Provide default for null fields
+name = IfNullExpr(input=F("nickname"), replacement=F("fullName"))
+
+# Chain defaults
+display = IfNullExpr(
+    input=F("displayName"),
+    replacement=IfNullExpr(input=F("username"), replacement="Anonymous")
+)
+```
+
+### SwitchExpr - Multi-Branch Conditional
+
+```python
+from mongo_aggro import F, SwitchExpr, SwitchBranch, EqExpr, Project, Pipeline
+
+# Map status codes to labels
+pipeline = Pipeline([
+    Project(fields={
+        "status_label": SwitchExpr(
+            branches=[
+                SwitchBranch(case=EqExpr(left=F("status"), right="A"), then="Active"),
+                SwitchBranch(case=EqExpr(left=F("status"), right="P"), then="Pending"),
+                SwitchBranch(case=EqExpr(left=F("status"), right="D"), then="Deleted"),
+            ],
+            default="Unknown"
+        ).model_dump()
+    })
+])
+
+# Using comparison operators
+grade = SwitchExpr(
+    branches=[
+        SwitchBranch(case=(F("score") >= 90), then="A"),
+        SwitchBranch(case=(F("score") >= 80), then="B"),
+        SwitchBranch(case=(F("score") >= 70), then="C"),
+    ],
+    default="F"
+)
+```
+
+---
+
+## String Expressions
+
+Manipulate string values in documents.
+
+### ConcatExpr - String Concatenation
+
+```python
+from mongo_aggro import F, ConcatExpr
+
+# Combine first and last name
+full_name = ConcatExpr(strings=[F("firstName"), " ", F("lastName")])
+
+# Build formatted string
+label = ConcatExpr(strings=["Order #", F("orderId"), " - ", F("status")])
+```
+
+### SplitExpr - Split String
+
+```python
+from mongo_aggro import F, SplitExpr
+
+# Split email into parts
+email_parts = SplitExpr(input=F("email"), delimiter="@")
+
+# Split path
+path_segments = SplitExpr(input=F("filePath"), delimiter="/")
+```
+
+### ToLowerExpr / ToUpperExpr - Case Conversion
+
+```python
+from mongo_aggro import F, ToLowerExpr, ToUpperExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        "email_normalized": ToLowerExpr(input=F("email")).model_dump(),
+        "code_upper": ToUpperExpr(input=F("countryCode")).model_dump(),
+    })
+])
+```
+
+---
+
+## Array Expressions
+
+Work with array fields in documents.
+
+### ArraySizeExpr - Array Length
+
+```python
+from mongo_aggro import F, ArraySizeExpr
+
+# Count items in array
+item_count = ArraySizeExpr(array=F("items"))
+
+# Use in conditions
+has_items = (ArraySizeExpr(array=F("items")) > 0)
+```
+
+### SliceExpr - Array Subset
+
+```python
+from mongo_aggro import F, SliceExpr
+
+# Get first 5 items
+top_5 = SliceExpr(array=F("items"), n=5)
+
+# Get items 3-5 (skip 2, take 3)
+middle = SliceExpr(array=F("items"), position=2, n=3)
+
+# Get last 3 items (negative n)
+last_3 = SliceExpr(array=F("items"), n=-3)
+```
+
+### FilterExpr - Filter Array Elements
+
+```python
+from mongo_aggro import F, Field, FilterExpr, GteExpr, Project, Pipeline
+
+# Filter items where price >= 100
+pipeline = Pipeline([
+    Project(fields={
+        "expensive_items": FilterExpr(
+            input=F("items"),
+            as_="item",
+            cond=GteExpr(left=Field("$$item.price"), right=100)
+        ).model_dump()
+    })
+])
+
+# Filter with multiple conditions
+active_high_value = FilterExpr(
+    input=F("orders"),
+    as_="order",
+    cond=(
+        (Field("$$order.status") == "active")
+        & (Field("$$order.total") > 1000)
+    )
+)
+```
+
+### MapExpr - Transform Array Elements
+
+```python
+from mongo_aggro import F, Field, MapExpr, MultiplyExpr, Project, Pipeline
+
+# Apply 10% increase to all prices
+pipeline = Pipeline([
+    Project(fields={
+        "increased_prices": MapExpr(
+            input=F("prices"),
+            as_="price",
+            in_=MultiplyExpr(operands=[Field("$$price"), 1.1])
+        ).model_dump()
+    })
+])
+
+# Extract specific field from array of objects
+names = MapExpr(
+    input=F("users"),
+    as_="user",
+    in_=Field("$$user.name")
+)
+```
+
+### ReduceExpr - Aggregate Array to Single Value
+
+```python
+from mongo_aggro import F, Field, ReduceExpr, AddExpr, Project, Pipeline
+
+# Sum all quantities
+pipeline = Pipeline([
+    Project(fields={
+        "total_qty": ReduceExpr(
+            input=F("items"),
+            initial_value=0,
+            in_=AddExpr(operands=[Field("$$value"), Field("$$this.qty")])
+        ).model_dump()
+    })
+])
+
+# Concatenate strings with separator
+joined = ReduceExpr(
+    input=F("tags"),
+    initial_value="",
+    in_=CondExpr(
+        if_=(Field("$$value") == ""),
+        then=Field("$$this"),
+        else_=ConcatExpr(strings=[Field("$$value"), ", ", Field("$$this")])
+    )
+)
+```
+
+---
+
+## Real-World Examples
+
+### E-commerce Order Processing
+
+```python
+from mongo_aggro import (
+    F, Pipeline, Match, Project, Group,
+    AddExpr, MultiplyExpr, CondExpr, FilterExpr, ReduceExpr,
+    Field, Expr, Sum
+)
+
+# Calculate order totals with discounts
+pipeline = Pipeline([
+    # Filter active orders
+    Match(query=Expr(expression=(
+        (F("status") == "confirmed") & (F("items").model_dump() != [])
+    )).model_dump()),
+
+    # Calculate line totals and apply bulk discount
+    Project(fields={
+        "orderId": 1,
+        "lineTotal": ReduceExpr(
+            input=F("items"),
+            initial_value=0,
+            in_=AddExpr(operands=[
+                Field("$$value"),
+                MultiplyExpr(operands=[
+                    Field("$$this.price"),
+                    Field("$$this.qty")
+                ])
+            ])
+        ).model_dump(),
+        "itemCount": {"$size": "$items"},
+    }),
+
+    # Apply discount for large orders
+    Project(fields={
+        "orderId": 1,
+        "lineTotal": 1,
+        "discount": CondExpr(
+            if_=(F("itemCount") > 10),
+            then=MultiplyExpr(operands=[F("lineTotal"), 0.1]),
+            else_=0
+        ).model_dump(),
+    }),
+])
+```
+
+### User Analytics Dashboard
+
+```python
+from mongo_aggro import (
+    F, Pipeline, Match, Project, AddFields,
+    CondExpr, SwitchExpr, SwitchBranch, ArraySizeExpr,
+    Expr
+)
+
+# Categorize users by activity
+pipeline = Pipeline([
+    AddFields(fields={
+        "activityLevel": SwitchExpr(
+            branches=[
+                SwitchBranch(
+                    case=(ArraySizeExpr(array=F("logins")) >= 100),
+                    then="power_user"
+                ),
+                SwitchBranch(
+                    case=(ArraySizeExpr(array=F("logins")) >= 20),
+                    then="active"
+                ),
+                SwitchBranch(
+                    case=(ArraySizeExpr(array=F("logins")) >= 1),
+                    then="casual"
+                ),
+            ],
+            default="inactive"
+        ).model_dump(),
+        "hasProfile": CondExpr(
+            if_=(F("profile") != None),
+            then=True,
+            else_=False
+        ).model_dump(),
+    })
+])
+```
+
+---
+
 ## Logical Operators
 
 ### And

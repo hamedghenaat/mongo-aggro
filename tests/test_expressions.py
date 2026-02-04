@@ -453,3 +453,280 @@ def test_all_comparison_operators(op_method, expr_class, mongo_op) -> None:
 
     assert isinstance(expr, expr_class)
     assert mongo_op in expr.model_dump()
+
+
+# --- Arithmetic Expression Tests ---
+
+
+def test_add_expr_two_operands() -> None:
+    """AddExpr with two operands."""
+    from mongo_aggro.expressions import AddExpr
+
+    expr = AddExpr(operands=[F("price"), F("tax")])
+    assert expr.model_dump() == {"$add": ["$price", "$tax"]}
+
+
+def test_add_expr_multiple_operands() -> None:
+    """AddExpr with multiple operands."""
+    from mongo_aggro.expressions import AddExpr
+
+    expr = AddExpr(operands=[F("a"), F("b"), 10])
+    assert expr.model_dump() == {"$add": ["$a", "$b", 10]}
+
+
+def test_subtract_expr() -> None:
+    """SubtractExpr serialization."""
+    from mongo_aggro.expressions import SubtractExpr
+
+    expr = SubtractExpr(left=F("total"), right=F("discount"))
+    assert expr.model_dump() == {"$subtract": ["$total", "$discount"]}
+
+
+def test_multiply_expr() -> None:
+    """MultiplyExpr serialization."""
+    from mongo_aggro.expressions import MultiplyExpr
+
+    expr = MultiplyExpr(operands=[F("price"), F("quantity")])
+    assert expr.model_dump() == {"$multiply": ["$price", "$quantity"]}
+
+
+def test_divide_expr() -> None:
+    """DivideExpr serialization."""
+    from mongo_aggro.expressions import DivideExpr
+
+    expr = DivideExpr(dividend=F("total"), divisor=F("count"))
+    assert expr.model_dump() == {"$divide": ["$total", "$count"]}
+
+
+def test_abs_expr() -> None:
+    """AbsExpr serialization."""
+    from mongo_aggro.expressions import AbsExpr
+
+    expr = AbsExpr(value=F("balance"))
+    assert expr.model_dump() == {"$abs": "$balance"}
+
+
+def test_mod_expr() -> None:
+    """ModExpr serialization."""
+    from mongo_aggro.expressions import ModExpr
+
+    expr = ModExpr(dividend=F("num"), divisor=2)
+    assert expr.model_dump() == {"$mod": ["$num", 2]}
+
+
+# --- Conditional Expression Tests ---
+
+
+def test_cond_expr() -> None:
+    """CondExpr serialization."""
+    from mongo_aggro.expressions import CondExpr
+
+    expr = CondExpr(
+        if_=GtExpr(left=F("qty"), right=100),
+        then="bulk",
+        else_="retail",
+    )
+    result = expr.model_dump()
+    assert result == {
+        "$cond": {
+            "if": {"$gt": ["$qty", 100]},
+            "then": "bulk",
+            "else": "retail",
+        }
+    }
+
+
+def test_ifnull_expr() -> None:
+    """IfNullExpr serialization."""
+    from mongo_aggro.expressions import IfNullExpr
+
+    expr = IfNullExpr(input=F("name"), replacement="Unknown")
+    assert expr.model_dump() == {"$ifNull": ["$name", "Unknown"]}
+
+
+def test_switch_expr() -> None:
+    """SwitchExpr serialization."""
+    from mongo_aggro.expressions import SwitchBranch, SwitchExpr
+
+    expr = SwitchExpr(
+        branches=[
+            SwitchBranch(case=EqExpr(left=F("status"), right="A"), then=1),
+            SwitchBranch(case=EqExpr(left=F("status"), right="B"), then=2),
+        ],
+        default=0,
+    )
+    result = expr.model_dump()
+    assert result["$switch"]["branches"][0] == {
+        "case": {"$eq": ["$status", "A"]},
+        "then": 1,
+    }
+    assert result["$switch"]["default"] == 0
+
+
+def test_switch_expr_no_default() -> None:
+    """SwitchExpr without default."""
+    from mongo_aggro.expressions import SwitchBranch, SwitchExpr
+
+    expr = SwitchExpr(
+        branches=[
+            SwitchBranch(case=EqExpr(left=F("x"), right=1), then="one"),
+        ],
+    )
+    result = expr.model_dump()
+    assert "default" not in result["$switch"]
+
+
+# --- String Expression Tests ---
+
+
+def test_concat_expr() -> None:
+    """ConcatExpr serialization."""
+    from mongo_aggro.expressions import ConcatExpr
+
+    expr = ConcatExpr(strings=[F("first"), " ", F("last")])
+    assert expr.model_dump() == {"$concat": ["$first", " ", "$last"]}
+
+
+def test_split_expr() -> None:
+    """SplitExpr serialization."""
+    from mongo_aggro.expressions import SplitExpr
+
+    expr = SplitExpr(input=F("fullName"), delimiter=" ")
+    assert expr.model_dump() == {"$split": ["$fullName", " "]}
+
+
+def test_tolower_expr() -> None:
+    """ToLowerExpr serialization."""
+    from mongo_aggro.expressions import ToLowerExpr
+
+    expr = ToLowerExpr(input=F("name"))
+    assert expr.model_dump() == {"$toLower": "$name"}
+
+
+def test_toupper_expr() -> None:
+    """ToUpperExpr serialization."""
+    from mongo_aggro.expressions import ToUpperExpr
+
+    expr = ToUpperExpr(input=F("name"))
+    assert expr.model_dump() == {"$toUpper": "$name"}
+
+
+# --- Array Expression Tests ---
+
+
+def test_array_size_expr() -> None:
+    """ArraySizeExpr serialization."""
+    from mongo_aggro.expressions import ArraySizeExpr
+
+    expr = ArraySizeExpr(array=F("items"))
+    assert expr.model_dump() == {"$size": "$items"}
+
+
+def test_slice_expr_n_only() -> None:
+    """SliceExpr with n only."""
+    from mongo_aggro.expressions import SliceExpr
+
+    expr = SliceExpr(array=F("items"), n=5)
+    assert expr.model_dump() == {"$slice": ["$items", 5]}
+
+
+def test_slice_expr_with_position() -> None:
+    """SliceExpr with position and n."""
+    from mongo_aggro.expressions import SliceExpr
+
+    expr = SliceExpr(array=F("items"), position=2, n=3)
+    assert expr.model_dump() == {"$slice": ["$items", 2, 3]}
+
+
+def test_filter_expr() -> None:
+    """FilterExpr serialization."""
+    from mongo_aggro.expressions import FilterExpr
+
+    expr = FilterExpr(
+        input=F("items"),
+        as_="item",
+        cond=GteExpr(left=Field("$$item.price"), right=100),
+    )
+    result = expr.model_dump()
+    assert result["$filter"]["input"] == "$items"
+    assert result["$filter"]["as"] == "item"
+    assert result["$filter"]["cond"] == {"$gte": ["$$item.price", 100]}
+
+
+def test_filter_expr_with_limit() -> None:
+    """FilterExpr with limit."""
+    from mongo_aggro.expressions import FilterExpr
+
+    expr = FilterExpr(
+        input=F("items"),
+        cond=GtExpr(left=Field("$$this.qty"), right=0),
+        limit=5,
+    )
+    result = expr.model_dump()
+    assert result["$filter"]["limit"] == 5
+
+
+def test_map_expr() -> None:
+    """MapExpr serialization."""
+    from mongo_aggro.expressions import MapExpr, MultiplyExpr
+
+    expr = MapExpr(
+        input=F("prices"),
+        as_="price",
+        in_=MultiplyExpr(operands=[Field("$$price"), 1.1]),
+    )
+    result = expr.model_dump()
+    assert result["$map"]["input"] == "$prices"
+    assert result["$map"]["as"] == "price"
+    assert result["$map"]["in"] == {"$multiply": ["$$price", 1.1]}
+
+
+def test_reduce_expr() -> None:
+    """ReduceExpr serialization."""
+    from mongo_aggro.expressions import AddExpr, ReduceExpr
+
+    expr = ReduceExpr(
+        input=F("items"),
+        initial_value=0,
+        in_=AddExpr(operands=[Field("$$value"), Field("$$this.qty")]),
+    )
+    result = expr.model_dump()
+    assert result["$reduce"]["input"] == "$items"
+    assert result["$reduce"]["initialValue"] == 0
+    assert result["$reduce"]["in"] == {"$add": ["$$value", "$$this.qty"]}
+
+
+# --- Nested Expression Tests ---
+
+
+def test_nested_arithmetic_expressions() -> None:
+    """Nested arithmetic expressions serialize correctly."""
+    from mongo_aggro.expressions import DivideExpr, MultiplyExpr
+
+    # (price * qty) / total
+    expr = DivideExpr(
+        dividend=MultiplyExpr(operands=[F("price"), F("qty")]),
+        divisor=F("total"),
+    )
+    result = expr.model_dump()
+    assert result == {
+        "$divide": [
+            {"$multiply": ["$price", "$qty"]},
+            "$total",
+        ]
+    }
+
+
+def test_cond_with_comparison() -> None:
+    """CondExpr with nested comparison and arithmetic."""
+    from mongo_aggro.expressions import CondExpr, MultiplyExpr
+
+    expr = CondExpr(
+        if_=(F("qty") > 100),
+        then=MultiplyExpr(operands=[F("price"), 0.9]),
+        else_=F("price"),
+    )
+    result = expr.model_dump()
+    assert result["$cond"]["if"] == {"$gt": ["$qty", 100]}
+    assert result["$cond"]["then"] == {"$multiply": ["$price", 0.9]}
+    assert result["$cond"]["else"] == "$price"

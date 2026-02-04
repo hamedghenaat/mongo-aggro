@@ -80,3 +80,106 @@ These expressions combine comparison expressions using `&`, `|`, and `~`.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Arithmetic Expressions
+
+::: mongo_aggro.AddExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SubtractExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MultiplyExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DivideExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AbsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ModExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Conditional Expressions
+
+::: mongo_aggro.CondExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IfNullExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SwitchExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SwitchBranch
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## String Expressions
+
+::: mongo_aggro.ConcatExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SplitExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToLowerExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToUpperExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Array Expressions
+
+::: mongo_aggro.ArraySizeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SliceExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.FilterExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MapExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ReduceExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
