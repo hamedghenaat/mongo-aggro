@@ -57,18 +57,14 @@ from .base import (
     SortSpec,
     serialize_value,
 )
-from .expressions import (
-    # Arithmetic expressions
+from .expressions import (  # Arithmetic expressions; Set expressions; Comparison expressions; Array expressions; Conditional expressions; Type conversion expressions; Date expressions; Encrypted string expressions; Object expressions; Additional array expressions; Variable expressions; Miscellaneous expressions; Logical expressions; Window expressions; Regex expressions; String expressions
     AbsExpr,
     AcosExpr,
     AcoshExpr,
     AddExpr,
-    # Set expressions
     AllElementsTrueExpr,
-    # Comparison expressions
     AndExpr,
     AnyElementTrueExpr,
-    # Array expressions
     ArrayElemAtExpr,
     ArraySizeExpr,
     ArrayToObjectExpr,
@@ -89,15 +85,12 @@ from .expressions import (
     CmpExpr,
     ConcatArraysExpr,
     ConcatExpr,
-    # Conditional expressions
     CondExpr,
-    # Type conversion expressions
     ConvertExpr,
     CosExpr,
     CoshExpr,
     CovariancePopExpr,
     CovarianceSampExpr,
-    # Date expressions
     DateAddExpr,
     DateDiffExpr,
     DateFromPartsExpr,
@@ -114,7 +107,6 @@ from .expressions import (
     DerivativeExpr,
     DivideExpr,
     DocumentNumberExpr,
-    # Encrypted string expressions
     EncStrContainsExpr,
     EncStrEndsWithExpr,
     EncStrNormalizedEqExpr,
@@ -128,13 +120,11 @@ from .expressions import (
     FilterExpr,
     FirstNExpr,
     FloorExpr,
-    # Object expressions
     GetFieldExpr,
     GteExpr,
     GtExpr,
     HourExpr,
     IfNullExpr,
-    # Additional array expressions
     InArrayExpr,
     IndexOfArrayExpr,
     IntegralExpr,
@@ -144,10 +134,8 @@ from .expressions import (
     IsoWeekExpr,
     IsoWeekYearExpr,
     LastNExpr,
-    # Variable expressions
     LetExpr,
     LinearFillExpr,
-    # Miscellaneous expressions
     LiteralExpr,
     LnExpr,
     LocfExpr,
@@ -158,7 +146,6 @@ from .expressions import (
     LTrimExpr,
     MapExpr,
     MaxNExpr,
-    # Object expressions
     MergeObjectsExpr,
     MillisecondExpr,
     MinNExpr,
@@ -167,7 +154,6 @@ from .expressions import (
     MonthExpr,
     MultiplyExpr,
     NeExpr,
-    # Logical expressions
     NotExpr,
     ObjectToArrayExpr,
     OrExpr,
@@ -175,10 +161,8 @@ from .expressions import (
     RadiansToDegreesExpr,
     RandExpr,
     RangeExpr,
-    # Window expressions
     RankExpr,
     ReduceExpr,
-    # Regex expressions
     RegexFindAllExpr,
     RegexFindExpr,
     RegexMatchExpr,
@@ -188,7 +172,6 @@ from .expressions import (
     RoundExpr,
     RTrimExpr,
     SecondExpr,
-    # Set expressions
     SetDifferenceExpr,
     SetEqualsExpr,
     SetFieldExpr,
@@ -200,7 +183,6 @@ from .expressions import (
     SinhExpr,
     SliceExpr,
     SortArrayExpr,
-    # String expressions
     SplitExpr,
     SqrtExpr,
     StrCaseCmpExpr,

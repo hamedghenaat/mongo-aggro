@@ -60,11 +60,7 @@ from mongo_aggro.expressions.array import (
     SliceExpr,
     SortArrayExpr,
 )
-from mongo_aggro.expressions.base import (
-    ExpressionBase,
-    F,
-    Field,
-)
+from mongo_aggro.expressions.base import ExpressionBase, F, Field
 
 # Bitwise operators
 from mongo_aggro.expressions.bitwise import (
@@ -128,11 +124,7 @@ from mongo_aggro.expressions.encrypted import (
 )
 
 # Logical operators
-from mongo_aggro.expressions.logical import (
-    AndExpr,
-    NotExpr,
-    OrExpr,
-)
+from mongo_aggro.expressions.logical import AndExpr, NotExpr, OrExpr
 
 # Object operators
 from mongo_aggro.expressions.object import (
@@ -155,10 +147,7 @@ from mongo_aggro.expressions.set import (
 )
 
 # Size operators
-from mongo_aggro.expressions.size import (
-    BinarySizeExpr,
-    BsonSizeExpr,
-)
+from mongo_aggro.expressions.size import BinarySizeExpr, BsonSizeExpr
 
 # String operators
 from mongo_aggro.expressions.string import (
@@ -213,11 +202,7 @@ from mongo_aggro.expressions.type import (
 )
 
 # Variable operators
-from mongo_aggro.expressions.variable import (
-    LetExpr,
-    LiteralExpr,
-    RandExpr,
-)
+from mongo_aggro.expressions.variable import LetExpr, LiteralExpr, RandExpr
 
 # Window operators
 from mongo_aggro.expressions.window import (

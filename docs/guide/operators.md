@@ -445,7 +445,7 @@ pipeline = Pipeline([
             unit="day",
             amount=7
         ).model_dump(),
-        
+
         # Subtract 1 month
         "previousMonth": DateSubtractExpr(
             start_date=F("reportDate"),
@@ -479,7 +479,7 @@ pipeline = Pipeline([
             end_date=F("deliveryDate"),
             unit="day"
         ).model_dump(),
-        
+
         # Age in years
         "age": DateDiffExpr(
             start_date=F("birthDate"),
@@ -502,14 +502,14 @@ pipeline = Pipeline([
             date=F("createdAt"),
             format="%Y-%m-%d"
         ).model_dump(),
-        
+
         # Full format with time
         "fullDateTime": DateToStringExpr(
             date=F("timestamp"),
             format="%Y-%m-%d %H:%M:%S",
             timezone="UTC"
         ).model_dump(),
-        
+
         # Handle null dates
         "safeDate": DateToStringExpr(
             date=F("optionalDate"),
@@ -532,7 +532,7 @@ pipeline = Pipeline([
             date_string=F("dateStr"),
             format="%Y-%m-%d"
         ).model_dump(),
-        
+
         # With error handling
         "safeDate": DateFromStringExpr(
             date_string=F("dateInput"),
@@ -554,7 +554,7 @@ Convert values between different BSON types.
 
 ```python
 from mongo_aggro import (
-    F, ToDateExpr, ToStringExpr, ToIntExpr, 
+    F, ToDateExpr, ToStringExpr, ToIntExpr,
     ToDoubleExpr, ToBoolExpr, ToObjectIdExpr,
     Project, Pipeline
 )
@@ -563,19 +563,19 @@ pipeline = Pipeline([
     Project(fields={
         # String to Date
         "date": ToDateExpr(input=F("dateString")).model_dump(),
-        
+
         # Number to String
         "idStr": ToStringExpr(input=F("numericId")).model_dump(),
-        
+
         # String to Integer
         "count": ToIntExpr(input=F("countStr")).model_dump(),
-        
+
         # Integer to Double
         "price": ToDoubleExpr(input=F("priceInt")).model_dump(),
-        
+
         # To Boolean (0/null = false, else true)
         "isActive": ToBoolExpr(input=F("activeFlag")).model_dump(),
-        
+
         # String to ObjectId
         "userId": ToObjectIdExpr(input=F("userIdStr")).model_dump(),
     })
@@ -596,7 +596,7 @@ pipeline = Pipeline([
             on_error=0,
             on_null=-1
         ).model_dump(),
-        
+
         # Convert to decimal
         "preciseValue": ConvertExpr(
             input=F("value"),
@@ -618,7 +618,7 @@ pipeline = Pipeline([
     Project(fields={
         # Get the type of a field
         "fieldType": TypeExpr(input=F("dynamicField")).model_dump(),
-        
+
         # Conditional based on type
         "value": CondExpr(
             if_=(TypeExpr(input=F("data")) == "string"),
@@ -647,12 +647,12 @@ pipeline = Pipeline([
     Project(fields={
         # Union of two tag arrays (unique values)
         "allTags": SetUnionExpr(arrays=[F("tags1"), F("tags2")]).model_dump(),
-        
+
         # Common elements between arrays
         "commonTags": SetIntersectionExpr(
             arrays=[F("userTags"), F("productTags")]
         ).model_dump(),
-        
+
         # Elements in first but not in second
         "uniqueTags": SetDifferenceExpr(
             first=F("allTags"),
@@ -676,16 +676,16 @@ pipeline = Pipeline([
         "samePermissions": SetEqualsExpr(
             arrays=[F("userPerms"), F("requiredPerms")]
         ).model_dump(),
-        
+
         # Check if first is subset of second
         "hasAllRequired": SetIsSubsetExpr(
             first=F("requiredSkills"),
             second=F("candidateSkills")
         ).model_dump(),
-        
+
         # Check if any element is truthy
         "anyPassed": AnyElementTrueExpr(input=F("testResults")).model_dump(),
-        
+
         # Check if all elements are truthy
         "allPassed": AllElementsTrueExpr(input=F("checks")).model_dump(),
     })
@@ -724,7 +724,7 @@ pipeline = Pipeline([
     Project(fields={
         # Convert object to array of {k, v} pairs
         "fieldsArray": ObjectToArrayExpr(input=F("metadata")).model_dump(),
-        
+
         # Convert array back to object
         "rebuiltObject": ArrayToObjectExpr(input=F("pairs")).model_dump(),
     })
@@ -743,7 +743,7 @@ pipeline = Pipeline([
             field=F("fieldName"),
             input=F("doc")
         ).model_dump(),
-        
+
         # Set field dynamically
         "updated": SetFieldExpr(
             field="status",
@@ -797,13 +797,13 @@ pipeline = Pipeline([
     Project(fields={
         # Get first element
         "first": ArrayElemAtExpr(array=F("items"), index=0).model_dump(),
-        
+
         # Get last element (negative index)
         "last": ArrayElemAtExpr(array=F("items"), index=-1).model_dump(),
-        
+
         # Get first 3 elements
         "top3": FirstNExpr(input=F("scores"), n=3).model_dump(),
-        
+
         # Get last 3 elements
         "bottom3": LastNExpr(input=F("scores"), n=3).model_dump(),
     })
@@ -823,13 +823,13 @@ pipeline = Pipeline([
         "allItems": ConcatArraysExpr(
             arrays=[F("items1"), F("items2"), F("items3")]
         ).model_dump(),
-        
+
         # Sort array by field
         "sortedByScore": SortArrayExpr(
             input=F("players"),
             sort_by={"score": -1}
         ).model_dump(),
-        
+
         # Reverse array
         "reversed": ReverseArrayExpr(input=F("items")).model_dump(),
     })
@@ -847,13 +847,13 @@ pipeline = Pipeline([
     Project(fields={
         # Check if value is in array
         "isAdmin": InArrayExpr(value="admin", array=F("roles")).model_dump(),
-        
+
         # Find index of value
         "position": IndexOfArrayExpr(
             array=F("items"),
             value="target"
         ).model_dump(),
-        
+
         # Check if field is an array
         "isList": IsArrayExpr(input=F("data")).model_dump(),
     })
@@ -869,7 +869,7 @@ pipeline = Pipeline([
     Project(fields={
         # Generate [0, 2, 4, 6, 8]
         "evenNumbers": RangeExpr(start=0, end=10, step=2).model_dump(),
-        
+
         # Generate indices based on array size
         "indices": RangeExpr(start=0, end=F("count")).model_dump(),
     })
@@ -892,17 +892,17 @@ pipeline = Pipeline([
     Project(fields={
         # Trim whitespace from both ends
         "cleaned": TrimExpr(input=F("text")).model_dump(),
-        
+
         # Trim specific characters
         "noQuotes": TrimExpr(input=F("text"), chars="\"'").model_dump(),
-        
+
         # Replace first occurrence
         "fixedOnce": ReplaceOneExpr(
             input=F("text"),
             find="old",
             replacement="new"
         ).model_dump(),
-        
+
         # Replace all occurrences
         "fixedAll": ReplaceAllExpr(
             input=F("text"),
@@ -928,13 +928,13 @@ pipeline = Pipeline([
             regex=r"^[\\w.-]+@[\\w.-]+\\.\\w+$",
             options="i"
         ).model_dump(),
-        
+
         # Find first number in string
         "firstNumber": RegexFindExpr(
             input=F("text"),
             regex=r"\\d+"
         ).model_dump(),
-        
+
         # Find all words
         "allWords": RegexFindAllExpr(
             input=F("text"),
@@ -953,10 +953,10 @@ pipeline = Pipeline([
     Project(fields={
         # Get first 10 characters
         "preview": SubstrCPExpr(input=F("content"), start=0, length=10).model_dump(),
-        
+
         # Get string length
         "length": StrLenCPExpr(input=F("text")).model_dump(),
-        
+
         # Case-insensitive comparison
         "comparison": StrCaseCmpExpr(first=F("a"), second=F("b")).model_dump(),
     })
@@ -978,13 +978,13 @@ pipeline = Pipeline([
     Project(fields={
         # Round up
         "ceiling": CeilExpr(input=F("value")).model_dump(),
-        
+
         # Round down
         "floor": FloorExpr(input=F("value")).model_dump(),
-        
+
         # Round to 2 decimal places
         "rounded": RoundExpr(input=F("price"), place=2).model_dump(),
-        
+
         # Truncate (remove decimals)
         "truncated": TruncExpr(input=F("value")).model_dump(),
     })
@@ -1002,19 +1002,19 @@ pipeline = Pipeline([
     Project(fields={
         # Square root
         "sqrt": SqrtExpr(input=F("value")).model_dump(),
-        
+
         # Power (value^2)
         "squared": PowExpr(base=F("value"), exponent=2).model_dump(),
-        
+
         # e^x
         "exp": ExpExpr(input=F("x")).model_dump(),
-        
+
         # Natural log
         "ln": LnExpr(input=F("value")).model_dump(),
-        
+
         # Log base 10
         "log10": Log10Expr(input=F("value")).model_dump(),
-        
+
         # Log with custom base
         "log2": LogExpr(input=F("value"), base=2).model_dump(),
     })
@@ -1034,7 +1034,7 @@ pipeline = Pipeline([
     Project(fields={
         # Return "$field" as a literal string, not field reference
         "dollarSign": LiteralExpr(value="$field").model_dump(),
-        
+
         # Return literal array
         "staticArray": LiteralExpr(value=[1, 2, 3]).model_dump(),
     })
@@ -1050,7 +1050,7 @@ pipeline = Pipeline([
     Project(fields={
         # Random float between 0 and 1
         "random": RandExpr().model_dump(),
-        
+
         # Random integer 1-100
         "randomInt": FloorExpr(
             input=AddExpr(operands=[
@@ -1079,7 +1079,7 @@ pipeline = Pipeline([
     Project(fields={
         # Convert degrees to radians first
         "angleRad": DegreesToRadiansExpr(input=F("angleDeg")).model_dump(),
-        
+
         # Trig functions (input in radians)
         "sine": SinExpr(input=F("angle")).model_dump(),
         "cosine": CosExpr(input=F("angle")).model_dump(),
@@ -1102,15 +1102,15 @@ pipeline = Pipeline([
         "arcSine": AsinExpr(input=F("ratio")).model_dump(),
         "arcCosine": AcosExpr(input=F("ratio")).model_dump(),
         "arcTangent": AtanExpr(input=F("ratio")).model_dump(),
-        
+
         # Two-argument arctangent for proper quadrant
         "angle": Atan2Expr(y=F("y"), x=F("x")).model_dump(),
-        
+
         # Hyperbolic functions
         "sinhVal": SinhExpr(input=F("value")).model_dump(),
         "coshVal": CoshExpr(input=F("value")).model_dump(),
         "tanhVal": TanhExpr(input=F("value")).model_dump(),
-        
+
         # Convert radians back to degrees
         "angleDeg": RadiansToDegreesExpr(input=F("angleRad")).model_dump(),
     })
@@ -1132,13 +1132,13 @@ pipeline = Pipeline([
     Project(fields={
         # Bitwise AND (check if flag is set)
         "hasFlag": BitAndExpr(operands=[F("flags"), 0x04]).model_dump(),
-        
+
         # Bitwise OR (set flags)
         "withFlag": BitOrExpr(operands=[F("flags"), 0x02]).model_dump(),
-        
+
         # Bitwise XOR (toggle flag)
         "toggled": BitXorExpr(operands=[F("flags"), 0x01]).model_dump(),
-        
+
         # Bitwise NOT (invert all bits)
         "inverted": BitNotExpr(input=F("value")).model_dump(),
     })
@@ -1158,10 +1158,10 @@ pipeline = Pipeline([
     Project(fields={
         # Size of embedded document in bytes
         "docSize": BsonSizeExpr(input=F("metadata")).model_dump(),
-        
+
         # Size of entire document
         "totalSize": BsonSizeExpr(input="$$ROOT").model_dump(),
-        
+
         # Size of string/binary data
         "dataSize": BinarySizeExpr(input=F("content")).model_dump(),
     })
@@ -1216,13 +1216,13 @@ pipeline = Pipeline([
     Project(fields={
         # ISO week number (1-53)
         "isoWeek": IsoWeekExpr(date=F("date")).model_dump(),
-        
+
         # ISO week-numbering year
         "isoYear": IsoWeekYearExpr(date=F("date")).model_dump(),
-        
+
         # ISO day of week (1=Monday, 7=Sunday)
         "isoDayOfWeek": IsoDayOfWeekExpr(date=F("date")).model_dump(),
-        
+
         # Standard week (0-53, Sunday start)
         "week": WeekExpr(date=F("date")).model_dump(),
     })
@@ -1242,7 +1242,7 @@ pipeline = Pipeline([
             month=F("month"),
             day=F("day")
         ).model_dump(),
-        
+
         # With time components
         "timestamp": DateFromPartsExpr(
             year=2024,
@@ -1266,7 +1266,7 @@ pipeline = Pipeline([
     Project(fields={
         # Extract all date parts at once
         "parts": DateToPartsExpr(date=F("timestamp")).model_dump(),
-        
+
         # With ISO format
         "isoParts": DateToPartsExpr(
             date=F("timestamp"),
@@ -1288,14 +1288,14 @@ pipeline = Pipeline([
             date=F("timestamp"),
             unit="day"
         ).model_dump(),
-        
+
         # Truncate to start of week (Monday)
         "startOfWeek": DateTruncExpr(
             date=F("timestamp"),
             unit="week",
             start_of_week="monday"
         ).model_dump(),
-        
+
         # Truncate to 15-minute intervals
         "quarter": DateTruncExpr(
             date=F("timestamp"),
@@ -1328,10 +1328,10 @@ pipeline = Pipeline([
         output={
             # Standard rank (with gaps for ties)
             "rank": {"$rank": {}},
-            
+
             # Dense rank (no gaps)
             "denseRank": {"$denseRank": {}},
-            
+
             # Sequential document number
             "docNum": {"$documentNumber": {}},
         }
@@ -1360,7 +1360,7 @@ pipeline = Pipeline([
                 by=-1,
                 default=0
             ).model_dump(),
-            
+
             # Next day's price
             "nextPrice": ShiftExpr(
                 output=F("price"),
@@ -1384,7 +1384,7 @@ pipeline = Pipeline([
         output={
             # Exponential moving average with N periods
             "ema5": ExpMovingAvgExpr(input=F("price"), n=5).model_dump(),
-            
+
             # EMA with explicit alpha
             "emaAlpha": ExpMovingAvgExpr(
                 input=F("price"),
@@ -1412,7 +1412,7 @@ pipeline = Pipeline([
                 input=F("position"),
                 unit="second"
             ).model_dump(),
-            
+
             # Cumulative area under curve
             "totalEnergy": IntegralExpr(
                 input=F("power"),
@@ -1437,7 +1437,7 @@ pipeline = Pipeline([
         output={
             # Population covariance
             "covPop": CovariancePopExpr(array=[F("x"), F("y")]).model_dump(),
-            
+
             # Sample covariance
             "covSamp": CovarianceSampExpr(array=[F("x"), F("y")]).model_dump(),
         }
@@ -1459,7 +1459,7 @@ pipeline = Pipeline([
         output={
             # Linear interpolation for missing values
             "smoothedValue": LinearFillExpr(input=F("reading")).model_dump(),
-            
+
             # Last observation carried forward
             "filledValue": LocfExpr(input=F("reading")).model_dump(),
         }
@@ -1484,20 +1484,20 @@ pipeline = Pipeline([
                 sort_by={"score": -1},
                 output=F("name")
             ).model_dump(),
-            
+
             # Single bottom scorer
             "bottomPlayer": BottomExpr(
                 sort_by={"score": -1},
                 output=F("name")
             ).model_dump(),
-            
+
             # Top 3 scores
             "top3": TopNWindowExpr(
                 n=3,
                 sort_by={"score": -1},
                 output={"name": F("name"), "score": F("score")}
             ).model_dump(),
-            
+
             # Bottom 3 scores
             "bottom3": BottomNWindowExpr(
                 n=3,

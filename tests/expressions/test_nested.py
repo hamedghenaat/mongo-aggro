@@ -101,7 +101,8 @@ def test_filter_with_nested_comparison() -> None:
     """FilterExpr with nested comparison in condition."""
     expr = FilterExpr(
         input=F("items"),
-        cond=(F("$$this.price") > 100) & (F("$$this.inStock") == True),  # noqa: E712
+        cond=(F("$$this.price") > 100)
+        & (F("$$this.inStock") == True),  # noqa: E712
     )
     result = expr.model_dump()
     assert "$filter" in result
