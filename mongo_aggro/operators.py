@@ -93,17 +93,26 @@ class Expr(QueryOperator):
     """
     $expr operator for using aggregation expressions in queries.
 
+    Accepts both raw dicts and expression objects (EqExpr, AndExpr, etc.).
+    Expression objects are automatically serialized via model_dump().
+
     Example:
         >>> Expr(expression={"$eq": ["$field1", "$field2"]}).model_dump()
         {"$expr": {"$eq": ["$field1", "$field2"]}}
+
+        >>> from mongo_aggro.expressions import F, EqExpr
+        >>> Expr(expression=(F("status") == "active")).model_dump()
+        {"$expr": {"$eq": ["$status", "active"]}}
     """
 
-    expression: dict[str, Any] = Field(
-        ..., description="Aggregation expression"
+    expression: Any = Field(
+        ..., description="Aggregation expression (dict or ExpressionBase)"
     )
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
-        return {"$expr": self.expression}
+        from mongo_aggro.base import serialize_value
+
+        return {"$expr": serialize_value(self.expression)}
 
 
 # Comparison operators

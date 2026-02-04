@@ -1,6 +1,114 @@
 # Operators
 
-Mongo Aggro provides query operator classes for building complex filter conditions in `Match` stages and other contexts.
+Mongo Aggro provides query operator classes for building complex filter
+conditions in `Match` stages and other contexts.
+
+## Expression Operators with Python Syntax
+
+The most ergonomic way to build expressions is using Python's native
+operators with the `F()` field helper:
+
+```python
+from mongo_aggro import F, Expr, Match, Pipeline
+
+# Build expressions with Python operators
+expr = (F("status") == "active") & (F("age") > 18)
+
+# Use in Match stage
+pipeline = Pipeline([
+    Match(query=Expr(expression=expr).model_dump())
+])
+# Outputs: {"$match": {"$expr": {"$and": [
+#     {"$eq": ["$status", "active"]},
+#     {"$gt": ["$age", 18]}
+# ]}}}
+```
+
+### Field Reference with F()
+
+`F()` creates a field reference that supports operator overloading:
+
+```python
+from mongo_aggro import F
+
+# Basic field reference
+F("name")       # References "$name"
+F("user.age")   # References "$user.age" (nested)
+F("$total")     # Already prefixed, stays "$total"
+```
+
+### Comparison Operators
+
+| Python | MongoDB | Example |
+|--------|---------|---------|
+| `==`   | `$eq`   | `F("status") == "active"` |
+| `!=`   | `$ne`   | `F("status") != "deleted"` |
+| `>`    | `$gt`   | `F("age") > 18` |
+| `>=`   | `$gte`  | `F("score") >= 80` |
+| `<`    | `$lt`   | `F("price") < 100` |
+| `<=`   | `$lte`  | `F("level") <= 5` |
+
+### Logical Operators
+
+**Important:** Python's `and`, `or`, `not` keywords cannot be overloaded.
+Use bitwise operators instead:
+
+| Python | MongoDB | Example |
+|--------|---------|---------|
+| `&`    | `$and`  | `(F("a") == 1) & (F("b") == 2)` |
+| `\|`   | `$or`   | `(F("a") == 1) \| (F("b") == 2)` |
+| `~`    | `$not`  | `~(F("status") == "deleted")` |
+
+**Note:** Parentheses are required due to operator precedence!
+
+```python
+from mongo_aggro import F, Expr
+
+# Complex expression with AND, OR, NOT
+expr = (
+    (F("status") == "active")
+    & (F("verified") == True)
+    & (
+        (F("score") >= 90)
+        | (F("bonus") > 0)
+    )
+)
+
+# Negation
+not_deleted = ~(F("status") == "deleted")
+```
+
+### Chaining Flattens Automatically
+
+Chained `&` or `|` operators are flattened into a single `$and` / `$or`:
+
+```python
+from mongo_aggro import F
+
+# These chains create a single $and with 3 conditions
+expr = (F("a") == 1) & (F("b") == 2) & (F("c") == 3)
+# {"$and": [{"$eq": ["$a", 1]}, {"$eq": ["$b", 2]}, {"$eq": ["$c", 3]}]}
+```
+
+### Using with Expr in Match
+
+```python
+from mongo_aggro import F, Expr, Match, Pipeline
+
+# Build the expression
+filter_expr = (
+    (F("status") == "active")
+    & (F("age") >= 18)
+    & ((F("role") == "admin") | (F("level") > 5))
+)
+
+# Use in pipeline
+pipeline = Pipeline([
+    Match(query=Expr(expression=filter_expr).model_dump())
+])
+```
+
+---
 
 ## Logical Operators
 

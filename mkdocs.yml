@@ -98,6 +98,7 @@ nav:
       - Stages: api/stages.md
       - Accumulators: api/accumulators.md
       - Operators: api/operators.md
+      - Expressions: api/expressions.md
 
 extra:
   social:

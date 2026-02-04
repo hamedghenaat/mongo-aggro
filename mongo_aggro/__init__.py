@@ -16,6 +16,13 @@ Example:
     >>>
     >>> # Pass directly to MongoDB - no need to call any methods
     >>> results = collection.aggregate(pipeline)
+
+Expression operators with Python syntax:
+    >>> from mongo_aggro import Match, Expr
+    >>> from mongo_aggro.expressions import F
+    >>>
+    >>> # Use Python operators for MongoDB expressions
+    >>> Match(query=Expr((F("status") == "active") & (F("age") > 18)))
 """
 
 from .accumulators import (
@@ -48,6 +55,24 @@ from .base import (
     BaseStage,
     Pipeline,
     SortSpec,
+    serialize_value,
+)
+from .expressions import (
+    # Comparison expressions
+    AndExpr,
+    CmpExpr,
+    EqExpr,
+    ExpressionBase,
+    F,
+    Field,
+    GteExpr,
+    GtExpr,
+    LteExpr,
+    LtExpr,
+    NeExpr,
+    # Logical expressions
+    NotExpr,
+    OrExpr,
 )
 from .operators import (
     All,
@@ -109,9 +134,24 @@ __all__ = [
     "BaseStage",
     "SortSpec",
     "AggregationInput",
+    "serialize_value",
     # Sort direction constants
     "ASCENDING",
     "DESCENDING",
+    # Expression operators (new)
+    "F",
+    "Field",
+    "ExpressionBase",
+    "EqExpr",
+    "NeExpr",
+    "GtExpr",
+    "GteExpr",
+    "LtExpr",
+    "LteExpr",
+    "CmpExpr",
+    "AndExpr",
+    "OrExpr",
+    "NotExpr",
     # Query operators
     "QueryOperator",
     "And",

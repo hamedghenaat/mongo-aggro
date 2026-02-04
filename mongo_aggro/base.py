@@ -2,10 +2,13 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
-from pydantic import GetCoreSchemaHandler
+from pydantic import BaseModel, GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
+
+if TYPE_CHECKING:
+    pass
 
 # Sort direction constants for use with Sort stage and with_sort method
 ASCENDING: int = 1
@@ -16,6 +19,37 @@ DESCENDING: int = -1
 SortSpec = dict[str, int]
 # Type alias for aggregation input tuple (pipeline, sort)
 AggregationInput = tuple[list[dict[str, Any]], SortSpec]
+
+
+def serialize_value(v: Any) -> Any:
+    """
+    Recursively serialize values for MongoDB expressions.
+
+    Handles:
+    - Field objects: returns the field path string (e.g., "$status")
+    - BaseModel instances: calls model_dump() for Pydantic serialization
+    - Lists: recursively serializes each element
+    - Dicts: recursively serializes each value
+    - Other values: returns as-is
+
+    Args:
+        v: Any value to serialize
+
+    Returns:
+        MongoDB-compatible serialized value
+    """
+    # Import here to avoid circular imports
+    from mongo_aggro.expressions import Field
+
+    if isinstance(v, Field):
+        return str(v)
+    elif isinstance(v, BaseModel):
+        return v.model_dump()
+    elif isinstance(v, list):
+        return [serialize_value(item) for item in v]
+    elif isinstance(v, dict):
+        return {k: serialize_value(val) for k, val in v.items()}
+    return v
 
 
 class BaseStage(ABC):
