@@ -714,3 +714,82 @@ These expressions combine comparison expressions using `&`, `|`, and `~`.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Window Expressions
+
+These operators are used with the `$setWindowFields` stage.
+
+::: mongo_aggro.RankExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DenseRankExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DocumentNumberExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ShiftExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ExpMovingAvgExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DerivativeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IntegralExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.CovariancePopExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.CovarianceSampExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LinearFillExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LocfExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TopExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BottomExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TopNWindowExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BottomNWindowExpr
+    options:
+      show_root_heading: true
+      heading_level: 3

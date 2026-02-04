@@ -1308,6 +1308,209 @@ pipeline = Pipeline([
 
 ---
 
+## Window Expressions
+
+Window operators are used with the `$setWindowFields` stage for calculations
+across document partitions.
+
+### Ranking Functions
+
+```python
+from mongo_aggro import (
+    F, RankExpr, DenseRankExpr, DocumentNumberExpr,
+    SetWindowFields, Pipeline
+)
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("category"),
+        sort_by={"score": -1},
+        output={
+            # Standard rank (with gaps for ties)
+            "rank": {"$rank": {}},
+            
+            # Dense rank (no gaps)
+            "denseRank": {"$denseRank": {}},
+            
+            # Sequential document number
+            "docNum": {"$documentNumber": {}},
+        }
+    )
+])
+
+# Using expression classes
+rank = RankExpr()
+dense_rank = DenseRankExpr()
+doc_num = DocumentNumberExpr()
+```
+
+### ShiftExpr - Access Previous/Next Values
+
+```python
+from mongo_aggro import F, ShiftExpr, SetWindowFields, Pipeline
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("symbol"),
+        sort_by={"date": 1},
+        output={
+            # Previous day's price
+            "prevPrice": ShiftExpr(
+                output=F("price"),
+                by=-1,
+                default=0
+            ).model_dump(),
+            
+            # Next day's price
+            "nextPrice": ShiftExpr(
+                output=F("price"),
+                by=1,
+                default=None
+            ).model_dump(),
+        }
+    )
+])
+```
+
+### Moving Averages
+
+```python
+from mongo_aggro import F, ExpMovingAvgExpr, SetWindowFields, Pipeline
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("symbol"),
+        sort_by={"date": 1},
+        output={
+            # Exponential moving average with N periods
+            "ema5": ExpMovingAvgExpr(input=F("price"), n=5).model_dump(),
+            
+            # EMA with explicit alpha
+            "emaAlpha": ExpMovingAvgExpr(
+                input=F("price"),
+                alpha=0.2
+            ).model_dump(),
+        }
+    )
+])
+```
+
+### Derivatives and Integrals
+
+```python
+from mongo_aggro import (
+    F, DerivativeExpr, IntegralExpr, SetWindowFields, Pipeline
+)
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("sensor"),
+        sort_by={"timestamp": 1},
+        output={
+            # Rate of change per second
+            "velocity": DerivativeExpr(
+                input=F("position"),
+                unit="second"
+            ).model_dump(),
+            
+            # Cumulative area under curve
+            "totalEnergy": IntegralExpr(
+                input=F("power"),
+                unit="hour"
+            ).model_dump(),
+        }
+    )
+])
+```
+
+### Covariance
+
+```python
+from mongo_aggro import (
+    F, CovariancePopExpr, CovarianceSampExpr, SetWindowFields, Pipeline
+)
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("region"),
+        sort_by={"date": 1},
+        output={
+            # Population covariance
+            "covPop": CovariancePopExpr(array=[F("x"), F("y")]).model_dump(),
+            
+            # Sample covariance
+            "covSamp": CovarianceSampExpr(array=[F("x"), F("y")]).model_dump(),
+        }
+    )
+])
+```
+
+### Gap Filling
+
+```python
+from mongo_aggro import (
+    F, LinearFillExpr, LocfExpr, SetWindowFields, Pipeline
+)
+
+pipeline = Pipeline([
+    SetWindowFields(
+        partition_by=F("sensor"),
+        sort_by={"timestamp": 1},
+        output={
+            # Linear interpolation for missing values
+            "smoothedValue": LinearFillExpr(input=F("reading")).model_dump(),
+            
+            # Last observation carried forward
+            "filledValue": LocfExpr(input=F("reading")).model_dump(),
+        }
+    )
+])
+```
+
+### Top/Bottom Accumulators
+
+```python
+from mongo_aggro import (
+    F, TopExpr, BottomExpr, TopNWindowExpr, BottomNWindowExpr,
+    Group, Pipeline
+)
+
+pipeline = Pipeline([
+    Group(
+        id="$category",
+        fields={
+            # Single top scorer
+            "topPlayer": TopExpr(
+                sort_by={"score": -1},
+                output=F("name")
+            ).model_dump(),
+            
+            # Single bottom scorer
+            "bottomPlayer": BottomExpr(
+                sort_by={"score": -1},
+                output=F("name")
+            ).model_dump(),
+            
+            # Top 3 scores
+            "top3": TopNWindowExpr(
+                n=3,
+                sort_by={"score": -1},
+                output={"name": F("name"), "score": F("score")}
+            ).model_dump(),
+            
+            # Bottom 3 scores
+            "bottom3": BottomNWindowExpr(
+                n=3,
+                sort_by={"score": -1},
+                output={"name": F("name"), "score": F("score")}
+            ).model_dump(),
+        }
+    )
+])
+```
+
+---
+
 ## Real-World Examples
 
 ### E-commerce Order Processing

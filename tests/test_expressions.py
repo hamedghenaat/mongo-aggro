@@ -1806,3 +1806,156 @@ def test_date_trunc_expr_with_options() -> None:
     assert result["$dateTrunc"]["binSize"] == 2
     assert result["$dateTrunc"]["timezone"] == "UTC"
     assert result["$dateTrunc"]["startOfWeek"] == "monday"
+
+
+# --- Window Expression Tests ---
+
+
+def test_rank_expr() -> None:
+    """RankExpr serialization."""
+    from mongo_aggro.expressions import RankExpr
+
+    expr = RankExpr()
+    assert expr.model_dump() == {"$rank": {}}
+
+
+def test_dense_rank_expr() -> None:
+    """DenseRankExpr serialization."""
+    from mongo_aggro.expressions import DenseRankExpr
+
+    expr = DenseRankExpr()
+    assert expr.model_dump() == {"$denseRank": {}}
+
+
+def test_document_number_expr() -> None:
+    """DocumentNumberExpr serialization."""
+    from mongo_aggro.expressions import DocumentNumberExpr
+
+    expr = DocumentNumberExpr()
+    assert expr.model_dump() == {"$documentNumber": {}}
+
+
+def test_shift_expr() -> None:
+    """ShiftExpr serialization."""
+    from mongo_aggro.expressions import ShiftExpr
+
+    expr = ShiftExpr(output=F("value"), by=1)
+    result = expr.model_dump()
+    assert result == {"$shift": {"output": "$value", "by": 1}}
+
+
+def test_shift_expr_with_default() -> None:
+    """ShiftExpr with default value."""
+    from mongo_aggro.expressions import ShiftExpr
+
+    expr = ShiftExpr(output=F("value"), by=-1, default=0)
+    result = expr.model_dump()
+    assert result["$shift"]["default"] == 0
+
+
+def test_exp_moving_avg_expr_n() -> None:
+    """ExpMovingAvgExpr with N parameter."""
+    from mongo_aggro.expressions import ExpMovingAvgExpr
+
+    expr = ExpMovingAvgExpr(input=F("price"), n=5)
+    result = expr.model_dump()
+    assert result == {"$expMovingAvg": {"input": "$price", "N": 5}}
+
+
+def test_exp_moving_avg_expr_alpha() -> None:
+    """ExpMovingAvgExpr with alpha parameter."""
+    from mongo_aggro.expressions import ExpMovingAvgExpr
+
+    expr = ExpMovingAvgExpr(input=F("price"), alpha=0.5)
+    result = expr.model_dump()
+    assert result == {"$expMovingAvg": {"input": "$price", "alpha": 0.5}}
+
+
+def test_derivative_expr() -> None:
+    """DerivativeExpr serialization."""
+    from mongo_aggro.expressions import DerivativeExpr
+
+    expr = DerivativeExpr(input=F("value"), unit="second")
+    result = expr.model_dump()
+    assert result == {"$derivative": {"input": "$value", "unit": "second"}}
+
+
+def test_integral_expr() -> None:
+    """IntegralExpr serialization."""
+    from mongo_aggro.expressions import IntegralExpr
+
+    expr = IntegralExpr(input=F("value"), unit="hour")
+    result = expr.model_dump()
+    assert result == {"$integral": {"input": "$value", "unit": "hour"}}
+
+
+def test_covariance_pop_expr() -> None:
+    """CovariancePopExpr serialization."""
+    from mongo_aggro.expressions import CovariancePopExpr
+
+    expr = CovariancePopExpr(array=[F("x"), F("y")])
+    assert expr.model_dump() == {"$covariancePop": ["$x", "$y"]}
+
+
+def test_covariance_samp_expr() -> None:
+    """CovarianceSampExpr serialization."""
+    from mongo_aggro.expressions import CovarianceSampExpr
+
+    expr = CovarianceSampExpr(array=[F("x"), F("y")])
+    assert expr.model_dump() == {"$covarianceSamp": ["$x", "$y"]}
+
+
+def test_linear_fill_expr() -> None:
+    """LinearFillExpr serialization."""
+    from mongo_aggro.expressions import LinearFillExpr
+
+    expr = LinearFillExpr(input=F("value"))
+    assert expr.model_dump() == {"$linearFill": "$value"}
+
+
+def test_locf_expr() -> None:
+    """LocfExpr serialization."""
+    from mongo_aggro.expressions import LocfExpr
+
+    expr = LocfExpr(input=F("value"))
+    assert expr.model_dump() == {"$locf": "$value"}
+
+
+def test_top_expr() -> None:
+    """TopExpr serialization."""
+    from mongo_aggro.expressions import TopExpr
+
+    expr = TopExpr(sort_by={"score": -1}, output=F("name"))
+    assert expr.model_dump() == {
+        "$top": {"sortBy": {"score": -1}, "output": "$name"}
+    }
+
+
+def test_bottom_expr() -> None:
+    """BottomExpr serialization."""
+    from mongo_aggro.expressions import BottomExpr
+
+    expr = BottomExpr(sort_by={"score": 1}, output=F("name"))
+    assert expr.model_dump() == {
+        "$bottom": {"sortBy": {"score": 1}, "output": "$name"}
+    }
+
+
+def test_top_n_window_expr() -> None:
+    """TopNWindowExpr serialization."""
+    from mongo_aggro.expressions import TopNWindowExpr
+
+    expr = TopNWindowExpr(n=3, sort_by={"score": -1}, output=F("name"))
+    assert expr.model_dump() == {
+        "$topN": {"n": 3, "sortBy": {"score": -1}, "output": "$name"}
+    }
+
+
+def test_bottom_n_window_expr() -> None:
+    """BottomNWindowExpr serialization."""
+    from mongo_aggro.expressions import BottomNWindowExpr
+
+    expr = BottomNWindowExpr(n=3, sort_by={"score": 1}, output=F("name"))
+    assert expr.model_dump() == {
+        "$bottomN": {"n": 3, "sortBy": {"score": 1}, "output": "$name"}
+    }
