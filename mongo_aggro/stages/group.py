@@ -8,10 +8,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage, Pipeline
+from mongo_aggro.base import Pipeline
 
 
-class SortByCount(BaseModel, BaseStage):
+class SortByCount(BaseModel):
     """
     $sortByCount stage - groups and counts by field, sorted by count.
 
@@ -31,7 +31,7 @@ class SortByCount(BaseModel, BaseStage):
         return {"$sortByCount": field_path}
 
 
-class Facet(BaseModel, BaseStage):
+class Facet(BaseModel):
     """
     $facet stage - processes multiple pipelines within a single stage.
 
@@ -62,7 +62,7 @@ class Facet(BaseModel, BaseStage):
         return {"$facet": result}
 
 
-class Bucket(BaseModel, BaseStage):
+class Bucket(BaseModel):
     """
     $bucket stage - categorizes documents into buckets.
 
@@ -109,7 +109,7 @@ class Bucket(BaseModel, BaseStage):
         return {"$bucket": result}
 
 
-class BucketAuto(BaseModel, BaseStage):
+class BucketAuto(BaseModel):
     """
     $bucketAuto stage - automatically categorizes into specified buckets.
 

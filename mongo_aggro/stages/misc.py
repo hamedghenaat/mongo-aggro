@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from mongo_aggro.base import BaseStage
 
-
-class ListClusterCatalog(BaseModel, BaseStage):
+class ListClusterCatalog(BaseModel):
     """
     $listClusterCatalog stage - lists collections in a cluster.
 
@@ -26,7 +24,7 @@ class ListClusterCatalog(BaseModel, BaseStage):
         return {"$listClusterCatalog": {}}
 
 
-class QuerySettings(BaseModel, BaseStage):
+class QuerySettings(BaseModel):
     """
     $querySettings stage - returns query settings (MongoDB 8.0+).
 

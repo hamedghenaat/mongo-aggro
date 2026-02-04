@@ -8,10 +8,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class ChangeStream(BaseModel, BaseStage):
+class ChangeStream(BaseModel):
     """
     $changeStream stage - returns a change stream cursor.
 
@@ -88,7 +86,7 @@ class ChangeStream(BaseModel, BaseStage):
         return {"$changeStream": result}
 
 
-class ChangeStreamSplitLargeEvent(BaseModel, BaseStage):
+class ChangeStreamSplitLargeEvent(BaseModel):
     """
     $changeStreamSplitLargeEvent stage - splits large change events.
 

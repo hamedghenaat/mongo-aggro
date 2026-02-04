@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class CollStats(BaseModel, BaseStage):
+class CollStats(BaseModel):
     """
     $collStats stage - returns collection statistics.
 
@@ -61,7 +59,7 @@ class CollStats(BaseModel, BaseStage):
         return {"$collStats": result}
 
 
-class IndexStats(BaseModel, BaseStage):
+class IndexStats(BaseModel):
     """
     $indexStats stage - returns index usage statistics.
 
@@ -76,7 +74,7 @@ class IndexStats(BaseModel, BaseStage):
         return {"$indexStats": {}}
 
 
-class PlanCacheStats(BaseModel, BaseStage):
+class PlanCacheStats(BaseModel):
     """
     $planCacheStats stage - returns plan cache information.
 
@@ -91,7 +89,7 @@ class PlanCacheStats(BaseModel, BaseStage):
         return {"$planCacheStats": {}}
 
 
-class CurrentOp(BaseModel, BaseStage):
+class CurrentOp(BaseModel):
     """
     $currentOp stage - returns current operations (db.aggregate only).
 

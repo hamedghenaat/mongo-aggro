@@ -8,10 +8,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class SetWindowFields(BaseModel, BaseStage):
+class SetWindowFields(BaseModel):
     """
     $setWindowFields stage - performs window calculations.
 
@@ -55,7 +53,7 @@ class SetWindowFields(BaseModel, BaseStage):
         return {"$setWindowFields": result}
 
 
-class Densify(BaseModel, BaseStage):
+class Densify(BaseModel):
     """
     $densify stage - fills gaps in data.
 
@@ -85,7 +83,7 @@ class Densify(BaseModel, BaseStage):
         return {"$densify": result}
 
 
-class Fill(BaseModel, BaseStage):
+class Fill(BaseModel):
     """
     $fill stage - fills null/missing field values.
 

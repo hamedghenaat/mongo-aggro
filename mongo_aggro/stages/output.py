@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class Sample(BaseModel, BaseStage):
+class Sample(BaseModel):
     """
     $sample stage - randomly selects documents.
 
@@ -28,7 +26,7 @@ class Sample(BaseModel, BaseStage):
         return {"$sample": {"size": self.size}}
 
 
-class Out(BaseModel, BaseStage):
+class Out(BaseModel):
     """
     $out stage - writes results to a collection.
 
@@ -51,7 +49,7 @@ class Out(BaseModel, BaseStage):
         return {"$out": self.collection}
 
 
-class Merge(BaseModel, BaseStage):
+class Merge(BaseModel):
     """
     $merge stage - writes results to a collection with merge behavior.
 
@@ -108,7 +106,7 @@ class Merge(BaseModel, BaseStage):
         return {"$merge": result}
 
 
-class Documents(BaseModel, BaseStage):
+class Documents(BaseModel):
     """
     $documents stage - returns literal documents.
 

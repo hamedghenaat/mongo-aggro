@@ -8,10 +8,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class Match(BaseModel, BaseStage):
+class Match(BaseModel):
     """
     $match stage - filters documents by specified criteria.
 
@@ -31,7 +29,7 @@ class Match(BaseModel, BaseStage):
         return {"$match": self.query}
 
 
-class Project(BaseModel, BaseStage):
+class Project(BaseModel):
     """
     $project stage - shapes documents by including/excluding fields.
 
@@ -53,7 +51,7 @@ class Project(BaseModel, BaseStage):
         return {"$project": self.fields}
 
 
-class Group(BaseModel, BaseStage):
+class Group(BaseModel):
     """
     $group stage - groups documents by specified expression.
 
@@ -91,7 +89,7 @@ class Group(BaseModel, BaseStage):
         return {"$group": result}
 
 
-class Sort(BaseModel, BaseStage):
+class Sort(BaseModel):
     """
     $sort stage - sorts documents.
 
@@ -110,7 +108,7 @@ class Sort(BaseModel, BaseStage):
         return {"$sort": self.fields}
 
 
-class Limit(BaseModel, BaseStage):
+class Limit(BaseModel):
     """
     $limit stage - limits the number of documents.
 
@@ -127,7 +125,7 @@ class Limit(BaseModel, BaseStage):
         return {"$limit": self.count}
 
 
-class Skip(BaseModel, BaseStage):
+class Skip(BaseModel):
     """
     $skip stage - skips a number of documents.
 
@@ -144,7 +142,7 @@ class Skip(BaseModel, BaseStage):
         return {"$skip": self.count}
 
 
-class Count(BaseModel, BaseStage):
+class Count(BaseModel):
     """
     $count stage - counts documents.
 

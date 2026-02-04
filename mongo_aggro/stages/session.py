@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class ListSessions(BaseModel, BaseStage):
+class ListSessions(BaseModel):
     """
     $listSessions stage - lists all sessions in system.sessions.
 
@@ -47,7 +45,7 @@ class ListSessions(BaseModel, BaseStage):
         return {"$listSessions": result}
 
 
-class ListLocalSessions(BaseModel, BaseStage):
+class ListLocalSessions(BaseModel):
     """
     $listLocalSessions stage - lists local sessions (db.aggregate only).
 
@@ -80,7 +78,7 @@ class ListLocalSessions(BaseModel, BaseStage):
         return {"$listLocalSessions": result}
 
 
-class ListSampledQueries(BaseModel, BaseStage):
+class ListSampledQueries(BaseModel):
     """
     $listSampledQueries stage - lists sampled queries.
 

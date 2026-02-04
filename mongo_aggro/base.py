@@ -1,8 +1,7 @@
 """Base classes for MongoDB aggregation pipeline stages."""
 
-from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel, GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
@@ -52,10 +51,14 @@ def serialize_value(v: Any) -> Any:
     return v
 
 
-class BaseStage(ABC):
-    """Abstract base class for all MongoDB aggregation pipeline stages."""
+@runtime_checkable
+class BaseStage(Protocol):
+    """Protocol for MongoDB aggregation pipeline stages.
 
-    @abstractmethod
+    Any class implementing model_dump() -> dict[str, Any] is a valid stage.
+    This enables structural typing - no inheritance required.
+    """
+
     def model_dump(self) -> dict[str, Any]:
         """
         Convert the stage to its MongoDB dictionary representation.
@@ -63,7 +66,7 @@ class BaseStage(ABC):
         Returns:
             dict[str, Any]: MongoDB aggregation stage dictionary
         """
-        pass
+        ...
 
 
 class Pipeline:
@@ -219,8 +222,11 @@ class Pipeline:
         return core_schema.is_instance_schema(cls)
 
 
-class _RawStage(BaseStage):
-    """Internal class for wrapping raw dictionary stages."""
+class _RawStage:
+    """Internal class for wrapping raw dictionary stages.
+
+    Implements BaseStage protocol.
+    """
 
     def __init__(self, raw: dict[str, Any]) -> None:
         self._raw = raw

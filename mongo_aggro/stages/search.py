@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class ListSearchIndexes(BaseModel, BaseStage):
+class ListSearchIndexes(BaseModel):
     """
     $listSearchIndexes stage - lists Atlas Search indexes.
 
@@ -46,7 +44,7 @@ class ListSearchIndexes(BaseModel, BaseStage):
         return {"$listSearchIndexes": result}
 
 
-class Search(BaseModel, BaseStage):
+class Search(BaseModel):
     """
     $search stage - Atlas full-text search.
 
@@ -170,7 +168,7 @@ class Search(BaseModel, BaseStage):
         return {"$search": result}
 
 
-class SearchMeta(BaseModel, BaseStage):
+class SearchMeta(BaseModel):
     """
     $searchMeta stage - returns Atlas Search metadata.
 
@@ -205,7 +203,7 @@ class SearchMeta(BaseModel, BaseStage):
         return {"$searchMeta": result}
 
 
-class VectorSearch(BaseModel, BaseStage):
+class VectorSearch(BaseModel):
     """
     $vectorSearch stage - Atlas vector search (MongoDB 7.0.2+).
 
@@ -268,7 +266,7 @@ class VectorSearch(BaseModel, BaseStage):
         return {"$vectorSearch": result}
 
 
-class RankFusion(BaseModel, BaseStage):
+class RankFusion(BaseModel):
     """
     $rankFusion stage - combines ranked results from multiple pipelines.
 

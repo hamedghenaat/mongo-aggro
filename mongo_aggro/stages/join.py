@@ -8,10 +8,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage, Pipeline
+from mongo_aggro.base import Pipeline
 
 
-class Lookup(BaseModel, BaseStage):
+class Lookup(BaseModel):
     """
     $lookup stage - performs a left outer join.
 
@@ -93,7 +93,7 @@ class Lookup(BaseModel, BaseStage):
         return {"$lookup": result}
 
 
-class UnionWith(BaseModel, BaseStage):
+class UnionWith(BaseModel):
     """
     $unionWith stage - combines pipeline results with another collection.
 
@@ -132,7 +132,7 @@ class UnionWith(BaseModel, BaseStage):
         return {"$unionWith": {"coll": self.collection, "pipeline": pl}}
 
 
-class GraphLookup(BaseModel, BaseStage):
+class GraphLookup(BaseModel):
     """
     $graphLookup stage - performs recursive search.
 

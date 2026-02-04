@@ -7,10 +7,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class GeoNear(BaseModel, BaseStage):
+class GeoNear(BaseModel):
     """
     $geoNear stage - returns documents near a geographic point.
 

@@ -7,10 +7,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class Unwind(BaseModel, BaseStage):
+class Unwind(BaseModel):
     """
     $unwind stage - deconstructs an array field.
 

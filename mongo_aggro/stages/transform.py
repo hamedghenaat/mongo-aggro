@@ -8,10 +8,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from mongo_aggro.base import BaseStage
 
-
-class AddFields(BaseModel, BaseStage):
+class AddFields(BaseModel):
     """
     $addFields stage - adds new fields to documents.
 
@@ -28,7 +26,7 @@ class AddFields(BaseModel, BaseStage):
         return {"$addFields": self.fields}
 
 
-class Set(BaseModel, BaseStage):
+class Set(BaseModel):
     """
     $set stage - alias for $addFields.
 
@@ -45,7 +43,7 @@ class Set(BaseModel, BaseStage):
         return {"$set": self.fields}
 
 
-class Unset(BaseModel, BaseStage):
+class Unset(BaseModel):
     """
     $unset stage - removes fields from documents.
 
@@ -65,7 +63,7 @@ class Unset(BaseModel, BaseStage):
         return {"$unset": self.fields}
 
 
-class ReplaceRoot(BaseModel, BaseStage):
+class ReplaceRoot(BaseModel):
     """
     $replaceRoot stage - replaces document with specified embedded document.
 
@@ -87,7 +85,7 @@ class ReplaceRoot(BaseModel, BaseStage):
         return {"$replaceRoot": {"newRoot": self.new_root}}
 
 
-class ReplaceWith(BaseModel, BaseStage):
+class ReplaceWith(BaseModel):
     """
     $replaceWith stage - replaces document (alias for $replaceRoot).
 
@@ -106,7 +104,7 @@ class ReplaceWith(BaseModel, BaseStage):
         return {"$replaceWith": self.expression}
 
 
-class Redact(BaseModel, BaseStage):
+class Redact(BaseModel):
     """
     $redact stage - restricts document content based on stored info.
 
