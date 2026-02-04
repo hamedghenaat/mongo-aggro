@@ -82,6 +82,7 @@ nav:
   - User Guide:
       - Pipeline: guide/pipeline.md
       - Stages: guide/stages.md
+      - Expressions: guide/expressions.md
       - Accumulators: guide/accumulators.md
       - Operators: guide/operators.md
   - Integrations:
