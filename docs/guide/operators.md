@@ -631,6 +631,439 @@ pipeline = Pipeline([
 
 ---
 
+## Set Expressions
+
+Perform set operations on arrays.
+
+### SetUnionExpr / SetIntersectionExpr - Set Operations
+
+```python
+from mongo_aggro import (
+    F, SetUnionExpr, SetIntersectionExpr, SetDifferenceExpr,
+    Project, Pipeline
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Union of two tag arrays (unique values)
+        "allTags": SetUnionExpr(arrays=[F("tags1"), F("tags2")]).model_dump(),
+        
+        # Common elements between arrays
+        "commonTags": SetIntersectionExpr(
+            arrays=[F("userTags"), F("productTags")]
+        ).model_dump(),
+        
+        # Elements in first but not in second
+        "uniqueTags": SetDifferenceExpr(
+            first=F("allTags"),
+            second=F("excludedTags")
+        ).model_dump(),
+    })
+])
+```
+
+### SetEqualsExpr / SetIsSubsetExpr - Set Comparisons
+
+```python
+from mongo_aggro import (
+    F, SetEqualsExpr, SetIsSubsetExpr, AnyElementTrueExpr,
+    AllElementsTrueExpr, Project, Pipeline
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Check if arrays have same elements
+        "samePermissions": SetEqualsExpr(
+            arrays=[F("userPerms"), F("requiredPerms")]
+        ).model_dump(),
+        
+        # Check if first is subset of second
+        "hasAllRequired": SetIsSubsetExpr(
+            first=F("requiredSkills"),
+            second=F("candidateSkills")
+        ).model_dump(),
+        
+        # Check if any element is truthy
+        "anyPassed": AnyElementTrueExpr(input=F("testResults")).model_dump(),
+        
+        # Check if all elements are truthy
+        "allPassed": AllElementsTrueExpr(input=F("checks")).model_dump(),
+    })
+])
+```
+
+---
+
+## Object Expressions
+
+Work with document/object fields dynamically.
+
+### MergeObjectsExpr - Merge Documents
+
+```python
+from mongo_aggro import F, MergeObjectsExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Merge defaults with overrides
+        "config": MergeObjectsExpr(
+            objects=[F("defaults"), F("userSettings"), F("overrides")]
+        ).model_dump(),
+    })
+])
+```
+
+### ObjectToArrayExpr / ArrayToObjectExpr - Convert Objects
+
+```python
+from mongo_aggro import (
+    F, ObjectToArrayExpr, ArrayToObjectExpr, Project, Pipeline
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Convert object to array of {k, v} pairs
+        "fieldsArray": ObjectToArrayExpr(input=F("metadata")).model_dump(),
+        
+        # Convert array back to object
+        "rebuiltObject": ArrayToObjectExpr(input=F("pairs")).model_dump(),
+    })
+])
+```
+
+### GetFieldExpr / SetFieldExpr - Dynamic Field Access
+
+```python
+from mongo_aggro import F, GetFieldExpr, SetFieldExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Get field by dynamic name
+        "dynamicValue": GetFieldExpr(
+            field=F("fieldName"),
+            input=F("doc")
+        ).model_dump(),
+        
+        # Set field dynamically
+        "updated": SetFieldExpr(
+            field="status",
+            input=F("doc"),
+            value="processed"
+        ).model_dump(),
+    })
+])
+```
+
+---
+
+## Variable Expressions
+
+### LetExpr - Define Local Variables
+
+```python
+from mongo_aggro import (
+    F, Field, LetExpr, MultiplyExpr, AddExpr, GtExpr,
+    CondExpr, Project, Pipeline
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Define variables for complex calculation
+        "discount": LetExpr(
+            vars={
+                "subtotal": MultiplyExpr(operands=[F("price"), F("qty")]),
+                "taxRate": 0.08,
+            },
+            in_=CondExpr(
+                if_=GtExpr(left=Field("$$subtotal"), right=100),
+                then=MultiplyExpr(operands=[Field("$$subtotal"), 0.9]),
+                else_=Field("$$subtotal")
+            )
+        ).model_dump(),
+    })
+])
+```
+
+---
+
+## Additional Array Expressions
+
+### ArrayElemAtExpr - Get Element by Index
+
+```python
+from mongo_aggro import F, ArrayElemAtExpr, FirstNExpr, LastNExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Get first element
+        "first": ArrayElemAtExpr(array=F("items"), index=0).model_dump(),
+        
+        # Get last element (negative index)
+        "last": ArrayElemAtExpr(array=F("items"), index=-1).model_dump(),
+        
+        # Get first 3 elements
+        "top3": FirstNExpr(input=F("scores"), n=3).model_dump(),
+        
+        # Get last 3 elements
+        "bottom3": LastNExpr(input=F("scores"), n=3).model_dump(),
+    })
+])
+```
+
+### ConcatArraysExpr / SortArrayExpr
+
+```python
+from mongo_aggro import (
+    F, ConcatArraysExpr, SortArrayExpr, ReverseArrayExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Concatenate multiple arrays
+        "allItems": ConcatArraysExpr(
+            arrays=[F("items1"), F("items2"), F("items3")]
+        ).model_dump(),
+        
+        # Sort array by field
+        "sortedByScore": SortArrayExpr(
+            input=F("players"),
+            sort_by={"score": -1}
+        ).model_dump(),
+        
+        # Reverse array
+        "reversed": ReverseArrayExpr(input=F("items")).model_dump(),
+    })
+])
+```
+
+### InArrayExpr / IndexOfArrayExpr / IsArrayExpr
+
+```python
+from mongo_aggro import (
+    F, InArrayExpr, IndexOfArrayExpr, IsArrayExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Check if value is in array
+        "isAdmin": InArrayExpr(value="admin", array=F("roles")).model_dump(),
+        
+        # Find index of value
+        "position": IndexOfArrayExpr(
+            array=F("items"),
+            value="target"
+        ).model_dump(),
+        
+        # Check if field is an array
+        "isList": IsArrayExpr(input=F("data")).model_dump(),
+    })
+])
+```
+
+### RangeExpr - Generate Number Sequence
+
+```python
+from mongo_aggro import F, RangeExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Generate [0, 2, 4, 6, 8]
+        "evenNumbers": RangeExpr(start=0, end=10, step=2).model_dump(),
+        
+        # Generate indices based on array size
+        "indices": RangeExpr(start=0, end=F("count")).model_dump(),
+    })
+])
+```
+
+---
+
+## Additional String Expressions
+
+### TrimExpr / ReplaceExpr
+
+```python
+from mongo_aggro import (
+    F, TrimExpr, LTrimExpr, RTrimExpr, ReplaceOneExpr,
+    ReplaceAllExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Trim whitespace from both ends
+        "cleaned": TrimExpr(input=F("text")).model_dump(),
+        
+        # Trim specific characters
+        "noQuotes": TrimExpr(input=F("text"), chars="\"'").model_dump(),
+        
+        # Replace first occurrence
+        "fixedOnce": ReplaceOneExpr(
+            input=F("text"),
+            find="old",
+            replacement="new"
+        ).model_dump(),
+        
+        # Replace all occurrences
+        "fixedAll": ReplaceAllExpr(
+            input=F("text"),
+            find=" ",
+            replacement="_"
+        ).model_dump(),
+    })
+])
+```
+
+### RegexMatchExpr / RegexFindExpr
+
+```python
+from mongo_aggro import (
+    F, RegexMatchExpr, RegexFindExpr, RegexFindAllExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Test if email is valid
+        "isValidEmail": RegexMatchExpr(
+            input=F("email"),
+            regex=r"^[\\w.-]+@[\\w.-]+\\.\\w+$",
+            options="i"
+        ).model_dump(),
+        
+        # Find first number in string
+        "firstNumber": RegexFindExpr(
+            input=F("text"),
+            regex=r"\\d+"
+        ).model_dump(),
+        
+        # Find all words
+        "allWords": RegexFindAllExpr(
+            input=F("text"),
+            regex=r"\\w+"
+        ).model_dump(),
+    })
+])
+```
+
+### SubstrCPExpr / StrLenCPExpr
+
+```python
+from mongo_aggro import F, SubstrCPExpr, StrLenCPExpr, StrCaseCmpExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Get first 10 characters
+        "preview": SubstrCPExpr(input=F("content"), start=0, length=10).model_dump(),
+        
+        # Get string length
+        "length": StrLenCPExpr(input=F("text")).model_dump(),
+        
+        # Case-insensitive comparison
+        "comparison": StrCaseCmpExpr(first=F("a"), second=F("b")).model_dump(),
+    })
+])
+```
+
+---
+
+## Additional Arithmetic Expressions
+
+### Rounding Expressions
+
+```python
+from mongo_aggro import (
+    F, CeilExpr, FloorExpr, RoundExpr, TruncExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Round up
+        "ceiling": CeilExpr(input=F("value")).model_dump(),
+        
+        # Round down
+        "floor": FloorExpr(input=F("value")).model_dump(),
+        
+        # Round to 2 decimal places
+        "rounded": RoundExpr(input=F("price"), place=2).model_dump(),
+        
+        # Truncate (remove decimals)
+        "truncated": TruncExpr(input=F("value")).model_dump(),
+    })
+])
+```
+
+### Mathematical Functions
+
+```python
+from mongo_aggro import (
+    F, SqrtExpr, PowExpr, ExpExpr, LnExpr, Log10Expr, LogExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Square root
+        "sqrt": SqrtExpr(input=F("value")).model_dump(),
+        
+        # Power (value^2)
+        "squared": PowExpr(base=F("value"), exponent=2).model_dump(),
+        
+        # e^x
+        "exp": ExpExpr(input=F("x")).model_dump(),
+        
+        # Natural log
+        "ln": LnExpr(input=F("value")).model_dump(),
+        
+        # Log base 10
+        "log10": Log10Expr(input=F("value")).model_dump(),
+        
+        # Log with custom base
+        "log2": LogExpr(input=F("value"), base=2).model_dump(),
+    })
+])
+```
+
+---
+
+## Miscellaneous Expressions
+
+### LiteralExpr - Prevent Field Interpretation
+
+```python
+from mongo_aggro import F, LiteralExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Return "$field" as a literal string, not field reference
+        "dollarSign": LiteralExpr(value="$field").model_dump(),
+        
+        # Return literal array
+        "staticArray": LiteralExpr(value=[1, 2, 3]).model_dump(),
+    })
+])
+```
+
+### RandExpr - Random Numbers
+
+```python
+from mongo_aggro import F, RandExpr, MultiplyExpr, FloorExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Random float between 0 and 1
+        "random": RandExpr().model_dump(),
+        
+        # Random integer 1-100
+        "randomInt": FloorExpr(
+            input=AddExpr(operands=[
+                MultiplyExpr(operands=[RandExpr(), 100]),
+                1
+            ])
+        ).model_dump(),
+    })
+])
+```
+
+---
+
 ## Real-World Examples
 
 ### E-commerce Order Processing

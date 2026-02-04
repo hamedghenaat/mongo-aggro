@@ -252,3 +252,272 @@ These expressions combine comparison expressions using `&`, `|`, and `~`.
     options:
       show_root_heading: true
       heading_level: 3
+
+::: mongo_aggro.ToLongExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToDecimalExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IsNumberExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Set Expressions
+
+::: mongo_aggro.SetUnionExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SetIntersectionExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SetDifferenceExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SetEqualsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SetIsSubsetExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AnyElementTrueExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AllElementsTrueExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Object Expressions
+
+::: mongo_aggro.MergeObjectsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ObjectToArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ArrayToObjectExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.GetFieldExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SetFieldExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Variable Expressions
+
+::: mongo_aggro.LetExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Miscellaneous Expressions
+
+::: mongo_aggro.LiteralExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RandExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Additional Array Expressions
+
+::: mongo_aggro.ArrayElemAtExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ConcatArraysExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.InArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IndexOfArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IsArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ReverseArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SortArrayExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RangeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.FirstNExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LastNExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MaxNExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MinNExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Additional String Expressions
+
+::: mongo_aggro.TrimExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LTrimExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RTrimExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ReplaceOneExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ReplaceAllExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RegexMatchExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RegexFindExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RegexFindAllExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SubstrCPExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.StrLenCPExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.StrCaseCmpExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Additional Arithmetic Expressions
+
+::: mongo_aggro.CeilExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.FloorExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RoundExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TruncExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SqrtExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.PowExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ExpExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LnExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.Log10Expr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.LogExpr
+    options:
+      show_root_heading: true
+      heading_level: 3

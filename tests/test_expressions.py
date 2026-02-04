@@ -955,3 +955,491 @@ def test_type_expr() -> None:
 
     expr = TypeExpr(input=F("field"))
     assert expr.model_dump() == {"$type": "$field"}
+
+
+# --- Set Expression Tests ---
+
+
+def test_set_union_expr() -> None:
+    """SetUnionExpr serialization."""
+    from mongo_aggro.expressions import SetUnionExpr
+
+    expr = SetUnionExpr(arrays=[F("tags1"), F("tags2")])
+    assert expr.model_dump() == {"$setUnion": ["$tags1", "$tags2"]}
+
+
+def test_set_intersection_expr() -> None:
+    """SetIntersectionExpr serialization."""
+    from mongo_aggro.expressions import SetIntersectionExpr
+
+    expr = SetIntersectionExpr(arrays=[F("a"), F("b")])
+    assert expr.model_dump() == {"$setIntersection": ["$a", "$b"]}
+
+
+def test_set_difference_expr() -> None:
+    """SetDifferenceExpr serialization."""
+    from mongo_aggro.expressions import SetDifferenceExpr
+
+    expr = SetDifferenceExpr(first=F("all"), second=F("excluded"))
+    assert expr.model_dump() == {"$setDifference": ["$all", "$excluded"]}
+
+
+def test_set_equals_expr() -> None:
+    """SetEqualsExpr serialization."""
+    from mongo_aggro.expressions import SetEqualsExpr
+
+    expr = SetEqualsExpr(arrays=[F("a"), F("b")])
+    assert expr.model_dump() == {"$setEquals": ["$a", "$b"]}
+
+
+def test_set_is_subset_expr() -> None:
+    """SetIsSubsetExpr serialization."""
+    from mongo_aggro.expressions import SetIsSubsetExpr
+
+    expr = SetIsSubsetExpr(first=F("small"), second=F("large"))
+    assert expr.model_dump() == {"$setIsSubset": ["$small", "$large"]}
+
+
+def test_any_element_true_expr() -> None:
+    """AnyElementTrueExpr serialization."""
+    from mongo_aggro.expressions import AnyElementTrueExpr
+
+    expr = AnyElementTrueExpr(input=F("flags"))
+    assert expr.model_dump() == {"$anyElementTrue": "$flags"}
+
+
+def test_all_elements_true_expr() -> None:
+    """AllElementsTrueExpr serialization."""
+    from mongo_aggro.expressions import AllElementsTrueExpr
+
+    expr = AllElementsTrueExpr(input=F("conditions"))
+    assert expr.model_dump() == {"$allElementsTrue": "$conditions"}
+
+
+# --- Object Expression Tests ---
+
+
+def test_merge_objects_expr() -> None:
+    """MergeObjectsExpr serialization."""
+    from mongo_aggro.expressions import MergeObjectsExpr
+
+    expr = MergeObjectsExpr(objects=[F("defaults"), F("overrides")])
+    assert expr.model_dump() == {"$mergeObjects": ["$defaults", "$overrides"]}
+
+
+def test_object_to_array_expr() -> None:
+    """ObjectToArrayExpr serialization."""
+    from mongo_aggro.expressions import ObjectToArrayExpr
+
+    expr = ObjectToArrayExpr(input=F("doc"))
+    assert expr.model_dump() == {"$objectToArray": "$doc"}
+
+
+def test_array_to_object_expr() -> None:
+    """ArrayToObjectExpr serialization."""
+    from mongo_aggro.expressions import ArrayToObjectExpr
+
+    expr = ArrayToObjectExpr(input=F("pairs"))
+    assert expr.model_dump() == {"$arrayToObject": "$pairs"}
+
+
+def test_get_field_expr_simple() -> None:
+    """GetFieldExpr simple serialization."""
+    from mongo_aggro.expressions import GetFieldExpr
+
+    expr = GetFieldExpr(field="status")
+    assert expr.model_dump() == {"$getField": "status"}
+
+
+def test_get_field_expr_with_input() -> None:
+    """GetFieldExpr with input document."""
+    from mongo_aggro.expressions import GetFieldExpr
+
+    expr = GetFieldExpr(field="status", input=F("doc"))
+    assert expr.model_dump() == {
+        "$getField": {"field": "status", "input": "$doc"}
+    }
+
+
+def test_set_field_expr() -> None:
+    """SetFieldExpr serialization."""
+    from mongo_aggro.expressions import SetFieldExpr
+
+    expr = SetFieldExpr(field="status", input=F("doc"), value="active")
+    assert expr.model_dump() == {
+        "$setField": {"field": "status", "input": "$doc", "value": "active"}
+    }
+
+
+# --- Variable Expression Tests ---
+
+
+def test_let_expr() -> None:
+    """LetExpr serialization."""
+    from mongo_aggro.expressions import LetExpr, MultiplyExpr
+
+    expr = LetExpr(
+        vars={"total": MultiplyExpr(operands=[F("price"), F("qty")])},
+        in_=Field("$$total"),
+    )
+    result = expr.model_dump()
+    assert "$let" in result
+    assert "vars" in result["$let"]
+    assert "total" in result["$let"]["vars"]
+    assert result["$let"]["in"] == "$$total"
+
+
+# --- Miscellaneous Expression Tests ---
+
+
+def test_literal_expr() -> None:
+    """LiteralExpr serialization."""
+    from mongo_aggro.expressions import LiteralExpr
+
+    expr = LiteralExpr(value="$field")
+    assert expr.model_dump() == {"$literal": "$field"}
+
+
+def test_rand_expr() -> None:
+    """RandExpr serialization."""
+    from mongo_aggro.expressions import RandExpr
+
+    expr = RandExpr()
+    assert expr.model_dump() == {"$rand": {}}
+
+
+# --- Additional Array Expression Tests ---
+
+
+def test_array_elem_at_expr() -> None:
+    """ArrayElemAtExpr serialization."""
+    from mongo_aggro.expressions import ArrayElemAtExpr
+
+    expr = ArrayElemAtExpr(array=F("items"), index=0)
+    assert expr.model_dump() == {"$arrayElemAt": ["$items", 0]}
+
+
+def test_concat_arrays_expr() -> None:
+    """ConcatArraysExpr serialization."""
+    from mongo_aggro.expressions import ConcatArraysExpr
+
+    expr = ConcatArraysExpr(arrays=[F("arr1"), F("arr2")])
+    assert expr.model_dump() == {"$concatArrays": ["$arr1", "$arr2"]}
+
+
+def test_in_array_expr() -> None:
+    """InArrayExpr serialization."""
+    from mongo_aggro.expressions import InArrayExpr
+
+    expr = InArrayExpr(value="admin", array=F("roles"))
+    assert expr.model_dump() == {"$in": ["admin", "$roles"]}
+
+
+def test_index_of_array_expr() -> None:
+    """IndexOfArrayExpr serialization."""
+    from mongo_aggro.expressions import IndexOfArrayExpr
+
+    expr = IndexOfArrayExpr(array=F("items"), value="target")
+    assert expr.model_dump() == {"$indexOfArray": ["$items", "target"]}
+
+
+def test_index_of_array_expr_with_range() -> None:
+    """IndexOfArrayExpr with start and end."""
+    from mongo_aggro.expressions import IndexOfArrayExpr
+
+    expr = IndexOfArrayExpr(array=F("items"), value="x", start=2, end=10)
+    assert expr.model_dump() == {"$indexOfArray": ["$items", "x", 2, 10]}
+
+
+def test_is_array_expr() -> None:
+    """IsArrayExpr serialization."""
+    from mongo_aggro.expressions import IsArrayExpr
+
+    expr = IsArrayExpr(input=F("field"))
+    assert expr.model_dump() == {"$isArray": "$field"}
+
+
+def test_reverse_array_expr() -> None:
+    """ReverseArrayExpr serialization."""
+    from mongo_aggro.expressions import ReverseArrayExpr
+
+    expr = ReverseArrayExpr(input=F("items"))
+    assert expr.model_dump() == {"$reverseArray": "$items"}
+
+
+def test_sort_array_expr() -> None:
+    """SortArrayExpr serialization."""
+    from mongo_aggro.expressions import SortArrayExpr
+
+    expr = SortArrayExpr(input=F("scores"), sort_by={"score": -1})
+    assert expr.model_dump() == {
+        "$sortArray": {"input": "$scores", "sortBy": {"score": -1}}
+    }
+
+
+def test_range_expr() -> None:
+    """RangeExpr serialization."""
+    from mongo_aggro.expressions import RangeExpr
+
+    expr = RangeExpr(start=0, end=10, step=2)
+    assert expr.model_dump() == {"$range": [0, 10, 2]}
+
+
+def test_first_n_expr() -> None:
+    """FirstNExpr serialization."""
+    from mongo_aggro.expressions import FirstNExpr
+
+    expr = FirstNExpr(input=F("items"), n=3)
+    assert expr.model_dump() == {"$firstN": {"input": "$items", "n": 3}}
+
+
+def test_last_n_expr() -> None:
+    """LastNExpr serialization."""
+    from mongo_aggro.expressions import LastNExpr
+
+    expr = LastNExpr(input=F("items"), n=3)
+    assert expr.model_dump() == {"$lastN": {"input": "$items", "n": 3}}
+
+
+def test_max_n_expr() -> None:
+    """MaxNExpr serialization."""
+    from mongo_aggro.expressions import MaxNExpr
+
+    expr = MaxNExpr(input=F("scores"), n=3)
+    assert expr.model_dump() == {"$maxN": {"input": "$scores", "n": 3}}
+
+
+def test_min_n_expr() -> None:
+    """MinNExpr serialization."""
+    from mongo_aggro.expressions import MinNExpr
+
+    expr = MinNExpr(input=F("scores"), n=3)
+    assert expr.model_dump() == {"$minN": {"input": "$scores", "n": 3}}
+
+
+# --- Additional String Expression Tests ---
+
+
+def test_trim_expr() -> None:
+    """TrimExpr serialization."""
+    from mongo_aggro.expressions import TrimExpr
+
+    expr = TrimExpr(input=F("text"))
+    assert expr.model_dump() == {"$trim": {"input": "$text"}}
+
+
+def test_trim_expr_with_chars() -> None:
+    """TrimExpr with custom chars."""
+    from mongo_aggro.expressions import TrimExpr
+
+    expr = TrimExpr(input=F("text"), chars=" -")
+    assert expr.model_dump() == {"$trim": {"input": "$text", "chars": " -"}}
+
+
+def test_ltrim_expr() -> None:
+    """LTrimExpr serialization."""
+    from mongo_aggro.expressions import LTrimExpr
+
+    expr = LTrimExpr(input=F("text"))
+    assert expr.model_dump() == {"$ltrim": {"input": "$text"}}
+
+
+def test_rtrim_expr() -> None:
+    """RTrimExpr serialization."""
+    from mongo_aggro.expressions import RTrimExpr
+
+    expr = RTrimExpr(input=F("text"))
+    assert expr.model_dump() == {"$rtrim": {"input": "$text"}}
+
+
+def test_replace_one_expr() -> None:
+    """ReplaceOneExpr serialization."""
+    from mongo_aggro.expressions import ReplaceOneExpr
+
+    expr = ReplaceOneExpr(input=F("text"), find="old", replacement="new")
+    assert expr.model_dump() == {
+        "$replaceOne": {"input": "$text", "find": "old", "replacement": "new"}
+    }
+
+
+def test_replace_all_expr() -> None:
+    """ReplaceAllExpr serialization."""
+    from mongo_aggro.expressions import ReplaceAllExpr
+
+    expr = ReplaceAllExpr(input=F("text"), find="old", replacement="new")
+    assert expr.model_dump() == {
+        "$replaceAll": {"input": "$text", "find": "old", "replacement": "new"}
+    }
+
+
+def test_regex_match_expr() -> None:
+    """RegexMatchExpr serialization."""
+    from mongo_aggro.expressions import RegexMatchExpr
+
+    expr = RegexMatchExpr(input=F("email"), regex=r"@.*\.com$")
+    assert expr.model_dump() == {
+        "$regexMatch": {"input": "$email", "regex": r"@.*\.com$"}
+    }
+
+
+def test_regex_match_expr_with_options() -> None:
+    """RegexMatchExpr with options."""
+    from mongo_aggro.expressions import RegexMatchExpr
+
+    expr = RegexMatchExpr(input=F("text"), regex=r"pattern", options="i")
+    result = expr.model_dump()
+    assert result["$regexMatch"]["options"] == "i"
+
+
+def test_regex_find_expr() -> None:
+    """RegexFindExpr serialization."""
+    from mongo_aggro.expressions import RegexFindExpr
+
+    expr = RegexFindExpr(input=F("text"), regex=r"\d+")
+    assert expr.model_dump() == {
+        "$regexFind": {"input": "$text", "regex": r"\d+"}
+    }
+
+
+def test_regex_find_all_expr() -> None:
+    """RegexFindAllExpr serialization."""
+    from mongo_aggro.expressions import RegexFindAllExpr
+
+    expr = RegexFindAllExpr(input=F("text"), regex=r"\w+")
+    assert expr.model_dump() == {
+        "$regexFindAll": {"input": "$text", "regex": r"\w+"}
+    }
+
+
+def test_substr_cp_expr() -> None:
+    """SubstrCPExpr serialization."""
+    from mongo_aggro.expressions import SubstrCPExpr
+
+    expr = SubstrCPExpr(input=F("text"), start=0, length=5)
+    assert expr.model_dump() == {"$substrCP": ["$text", 0, 5]}
+
+
+def test_str_len_cp_expr() -> None:
+    """StrLenCPExpr serialization."""
+    from mongo_aggro.expressions import StrLenCPExpr
+
+    expr = StrLenCPExpr(input=F("text"))
+    assert expr.model_dump() == {"$strLenCP": "$text"}
+
+
+def test_str_case_cmp_expr() -> None:
+    """StrCaseCmpExpr serialization."""
+    from mongo_aggro.expressions import StrCaseCmpExpr
+
+    expr = StrCaseCmpExpr(first=F("a"), second=F("b"))
+    assert expr.model_dump() == {"$strcasecmp": ["$a", "$b"]}
+
+
+# --- Additional Arithmetic Expression Tests ---
+
+
+def test_ceil_expr() -> None:
+    """CeilExpr serialization."""
+    from mongo_aggro.expressions import CeilExpr
+
+    expr = CeilExpr(input=F("value"))
+    assert expr.model_dump() == {"$ceil": "$value"}
+
+
+def test_floor_expr() -> None:
+    """FloorExpr serialization."""
+    from mongo_aggro.expressions import FloorExpr
+
+    expr = FloorExpr(input=F("value"))
+    assert expr.model_dump() == {"$floor": "$value"}
+
+
+def test_round_expr() -> None:
+    """RoundExpr serialization."""
+    from mongo_aggro.expressions import RoundExpr
+
+    expr = RoundExpr(input=F("value"), place=2)
+    assert expr.model_dump() == {"$round": ["$value", 2]}
+
+
+def test_trunc_expr() -> None:
+    """TruncExpr serialization."""
+    from mongo_aggro.expressions import TruncExpr
+
+    expr = TruncExpr(input=F("value"), place=1)
+    assert expr.model_dump() == {"$trunc": ["$value", 1]}
+
+
+def test_sqrt_expr() -> None:
+    """SqrtExpr serialization."""
+    from mongo_aggro.expressions import SqrtExpr
+
+    expr = SqrtExpr(input=F("value"))
+    assert expr.model_dump() == {"$sqrt": "$value"}
+
+
+def test_pow_expr() -> None:
+    """PowExpr serialization."""
+    from mongo_aggro.expressions import PowExpr
+
+    expr = PowExpr(base=F("value"), exponent=2)
+    assert expr.model_dump() == {"$pow": ["$value", 2]}
+
+
+def test_exp_expr() -> None:
+    """ExpExpr serialization."""
+    from mongo_aggro.expressions import ExpExpr
+
+    expr = ExpExpr(input=F("value"))
+    assert expr.model_dump() == {"$exp": "$value"}
+
+
+def test_ln_expr() -> None:
+    """LnExpr serialization."""
+    from mongo_aggro.expressions import LnExpr
+
+    expr = LnExpr(input=F("value"))
+    assert expr.model_dump() == {"$ln": "$value"}
+
+
+def test_log10_expr() -> None:
+    """Log10Expr serialization."""
+    from mongo_aggro.expressions import Log10Expr
+
+    expr = Log10Expr(input=F("value"))
+    assert expr.model_dump() == {"$log10": "$value"}
+
+
+def test_log_expr() -> None:
+    """LogExpr serialization."""
+    from mongo_aggro.expressions import LogExpr
+
+    expr = LogExpr(input=F("value"), base=2)
+    assert expr.model_dump() == {"$log": ["$value", 2]}
+
+
+# --- Additional Type Expression Tests ---
+
+
+def test_to_long_expr() -> None:
+    """ToLongExpr serialization."""
+    from mongo_aggro.expressions import ToLongExpr
+
+    expr = ToLongExpr(input=F("value"))
+    assert expr.model_dump() == {"$toLong": "$value"}
+
+
+def test_to_decimal_expr() -> None:
+    """ToDecimalExpr serialization."""
+    from mongo_aggro.expressions import ToDecimalExpr
+
+    expr = ToDecimalExpr(input=F("value"))
+    assert expr.model_dump() == {"$toDecimal": "$value"}
+
+
+def test_is_number_expr() -> None:
+    """IsNumberExpr serialization."""
+    from mongo_aggro.expressions import IsNumberExpr
+
+    expr = IsNumberExpr(input=F("value"))
+    assert expr.model_dump() == {"$isNumber": "$value"}
