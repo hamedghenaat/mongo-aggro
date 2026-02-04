@@ -27,7 +27,8 @@ pip install mongo-aggro
 ## Quick Start
 
 ```python
-from mongo_aggro import Pipeline, Match, Group, Sort, F, Expr
+from mongo_aggro import Pipeline, Match, Group, Sort, Expr
+from mongo_aggro.expressions import F
 
 # Traditional approach
 pipeline = Pipeline([
@@ -46,10 +47,27 @@ pipeline = Pipeline([
 results = collection.aggregate(pipeline)
 ```
 
+## Package Structure
+
+```python
+# Import from root (most common)
+from mongo_aggro import Pipeline, Match, Group, Sort, Expr
+
+# Import expressions from sub-package
+from mongo_aggro.expressions import F, AddExpr, ConcatExpr, CondExpr
+
+# Import stages by category
+from mongo_aggro.stages import Match, Project, Lookup, SetWindowFields
+
+# Import query operators
+from mongo_aggro.operators import In, Regex, GeoWithin, Exists
+```
+
 ## Expression Operators with Python Syntax
 
 ```python
-from mongo_aggro import F, Expr, Match
+from mongo_aggro import Expr, Match
+from mongo_aggro.expressions import F
 
 # Comparison operators
 F("age") > 18        # {"$gt": ["$age", 18]}
