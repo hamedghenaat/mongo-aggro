@@ -1,46 +1,46 @@
 .PHONY: help install install-dev install-test install-all lint format test test-cov clean build publish docs docs-serve
 
 PYTHON := python
-POETRY := poetry
+UV := uv
 
 help:  ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 install:  ## Install production dependencies
-	$(POETRY) install --only main
+	$(UV) sync --no-dev
 
 install-dev:  ## Install development dependencies
-	$(POETRY) install --with dev
+	$(UV) sync --extra dev
 
 install-test:  ## Install test dependencies
-	$(POETRY) install --with test
+	$(UV) sync --extra test
 
 install-all:  ## Install all dependencies (dev + test + docs)
-	$(POETRY) install --with dev,test,docs
+	$(UV) sync --extra dev --extra test --extra docs
 
 lint:  ## Run all linters
-	$(POETRY) run ruff check .
-	$(POETRY) run mypy mongo_aggro
+	$(UV) run ruff check .
+	$(UV) run mypy mongo_aggro
 
 format:  ## Format code with black and isort
-	$(POETRY) run black .
-	$(POETRY) run isort .
-	$(POETRY) run ruff check --fix .
+	$(UV) run black .
+	$(UV) run isort .
+	$(UV) run ruff check --fix .
 
 test:  ## Run tests
-	$(POETRY) run pytest
+	$(UV) run pytest
 
 test-cov:  ## Run tests with coverage
-	$(POETRY) run pytest --cov=mongo_aggro --cov-report=term-missing --cov-report=html
+	$(UV) run pytest --cov=mongo_aggro --cov-report=term-missing --cov-report=html
 
 test-fast:  ## Run tests without coverage (faster)
-	$(POETRY) run pytest -x -q
+	$(UV) run pytest -x -q
 
 pre-commit:  ## Run pre-commit hooks on all files
-	$(POETRY) run pre-commit run --all-files
+	$(UV) run pre-commit run --all-files
 
 pre-commit-install:  ## Install pre-commit hooks
-	$(POETRY) run pre-commit install
+	$(UV) run pre-commit install
 
 clean:  ## Clean build artifacts
 	rm -rf build/
@@ -55,29 +55,29 @@ clean:  ## Clean build artifacts
 	find . -type f -name "*.pyc" -delete
 
 build:  ## Build package
-	$(POETRY) build
+	$(UV) build
 
-publish:  ## Publish to PyPI (requires authentication)
-	$(POETRY) publish
+publish:  ## Publish to PyPI (usage: make publish REPO=pypi)
+	$(UV) run twine upload --repository $(REPO) dist/*
 
 publish-test:  ## Publish to TestPyPI
-	$(POETRY) publish -r testpypi
+	$(UV) run twine upload --repository testpypi dist/*
 
 check:  ## Run all checks (lint + test)
 	$(MAKE) lint
 	$(MAKE) test
 
 ci:  ## Run CI pipeline (format check + lint + test)
-	$(POETRY) run black --check .
-	$(POETRY) run isort --check-only .
+	$(UV) run black --check .
+	$(UV) run isort --check-only .
 	$(MAKE) lint
 	$(MAKE) test-cov
 
 docs:  ## Build documentation
-	$(POETRY) run mkdocs build
+	$(UV) run mkdocs build
 
 docs-serve:  ## Serve documentation locally
-	$(POETRY) run mkdocs serve
+	$(UV) run mkdocs serve
 
 docs-deploy:  ## Deploy documentation to GitHub Pages
-	$(POETRY) run mkdocs gh-deploy --force
+	$(UV) run mkdocs gh-deploy --force

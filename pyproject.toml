@@ -1,6 +1,6 @@
 [project]
 name = "mongo-aggro"
-version = "0.1.0"
+version = "0.1.1"
 description = "MongoDB Aggregation Pipeline Builder with Pydantic"
 readme = "README.md"
 license = "MIT"
@@ -44,6 +44,10 @@ docs = [
     "mkdocstrings>=0.27.0",
     "mkdocstrings-python>=1.12.0",
 ]
+build = [
+    "build>=1.2.0",
+    "twine>=6.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/hamedghenaat/mongo-aggro"
@@ -77,42 +81,12 @@ init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
 
-[tool.poetry]
-packages = [{ include = "mongo_aggro" }]
-
-[tool.poetry.dependencies]
-python = ">=3.12,<4.0"
-pydantic = "^2.10.0"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.10.0"
-isort = "^5.13.2"
-mypy = "^1.13.0"
-ruff = "^0.8.0"
-pyupgrade = "^3.19.0"
-pre-commit = "^4.0.0"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.0.0"
-pytest-cov = "^6.0.0"
-pytest-mock = "^3.14.0"
-
-
-[tool.poetry.group.docs.dependencies]
-mkdocs-material = "^9.7.1"
-mkdocs = "^1.6.1"
-mkdocstrings = "^1.0.0"
-mkdocstrings-python = "^2.0.1"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mongo_aggro"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
