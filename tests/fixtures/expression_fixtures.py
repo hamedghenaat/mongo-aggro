@@ -46,22 +46,28 @@ def simple_lt_expr(age_field: Field) -> LtExpr:
 @pytest.fixture
 def nested_and_expr() -> AndExpr:
     """Return an AND expression with two conditions."""
-    return AndExpr(conditions=[
-        EqExpr(left=F("status"), right="active"),
-        GtExpr(left=F("age"), right=18)
-    ])
+    return AndExpr(
+        conditions=[
+            EqExpr(left=F("status"), right="active"),
+            GtExpr(left=F("age"), right=18),
+        ]
+    )
 
 
 @pytest.fixture
 def deeply_nested_expr() -> OrExpr:
     """Return a deeply nested expression (3 levels)."""
-    return OrExpr(conditions=[
-        AndExpr(conditions=[
-            EqExpr(left=F("x"), right=1),
-            LtExpr(left=F("y"), right=10)
-        ]),
-        GtExpr(left=F("z"), right=100)
-    ])
+    return OrExpr(
+        conditions=[
+            AndExpr(
+                conditions=[
+                    EqExpr(left=F("x"), right=1),
+                    LtExpr(left=F("y"), right=10),
+                ]
+            ),
+            GtExpr(left=F("z"), right=100),
+        ]
+    )
 
 
 @pytest.fixture
@@ -71,8 +77,5 @@ def complex_combined_expr() -> AndExpr:
         (F("status") == "active")
         & (F("is_active") == True)  # noqa: E712
         & (F("age") > 18)
-        & (
-            (F("score") < 50)
-            | (F("bonus") >= 10)
-        )
+        & ((F("score") < 50) | (F("bonus") >= 10))
     )

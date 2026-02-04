@@ -793,3 +793,28 @@ These operators are used with the `$setWindowFields` stage.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Encrypted String Expressions
+
+These expressions are used with MongoDB Queryable Encryption for searching
+encrypted fields while maintaining data security.
+
+::: mongo_aggro.EncStrContainsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.EncStrStartsWithExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.EncStrEndsWithExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.EncStrNormalizedEqExpr
+    options:
+      show_root_heading: true
+      heading_level: 3

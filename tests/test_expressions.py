@@ -147,33 +147,24 @@ def test_le_via_operator(age_field: Field) -> None:
 def test_and_expr_serialization(nested_and_expr: AndExpr) -> None:
     """AndExpr serializes with nested expressions."""
     assert nested_and_expr.model_dump() == {
-        "$and": [
-            {"$eq": ["$status", "active"]},
-            {"$gt": ["$age", 18]}
-        ]
+        "$and": [{"$eq": ["$status", "active"]}, {"$gt": ["$age", 18]}]
     }
 
 
 def test_or_expr_serialization() -> None:
     """OrExpr serializes correctly."""
-    expr = OrExpr(conditions=[
-        EqExpr(left=F("a"), right=1),
-        EqExpr(left=F("a"), right=2)
-    ])
+    expr = OrExpr(
+        conditions=[EqExpr(left=F("a"), right=1), EqExpr(left=F("a"), right=2)]
+    )
     assert expr.model_dump() == {
-        "$or": [
-            {"$eq": ["$a", 1]},
-            {"$eq": ["$a", 2]}
-        ]
+        "$or": [{"$eq": ["$a", 1]}, {"$eq": ["$a", 2]}]
     }
 
 
 def test_not_expr_serialization() -> None:
     """NotExpr serializes correctly."""
     expr = NotExpr(condition=EqExpr(left=F("status"), right="deleted"))
-    assert expr.model_dump() == {
-        "$not": {"$eq": ["$status", "deleted"]}
-    }
+    assert expr.model_dump() == {"$not": {"$eq": ["$status", "deleted"]}}
 
 
 # --- Logical Operator Overloading Tests ---
@@ -184,10 +175,7 @@ def test_and_via_operator() -> None:
     expr = (F("a") == 1) & (F("b") == 2)
     assert isinstance(expr, AndExpr)
     assert expr.model_dump() == {
-        "$and": [
-            {"$eq": ["$a", 1]},
-            {"$eq": ["$b", 2]}
-        ]
+        "$and": [{"$eq": ["$a", 1]}, {"$eq": ["$b", 2]}]
     }
 
 
@@ -196,10 +184,7 @@ def test_or_via_operator() -> None:
     expr = (F("a") == 1) | (F("b") == 2)
     assert isinstance(expr, OrExpr)
     assert expr.model_dump() == {
-        "$or": [
-            {"$eq": ["$a", 1]},
-            {"$eq": ["$b", 2]}
-        ]
+        "$or": [{"$eq": ["$a", 1]}, {"$eq": ["$b", 2]}]
     }
 
 
@@ -207,9 +192,7 @@ def test_not_via_operator() -> None:
     """~ operator creates NotExpr."""
     expr = ~(F("status") == "deleted")
     assert isinstance(expr, NotExpr)
-    assert expr.model_dump() == {
-        "$not": {"$eq": ["$status", "deleted"]}
-    }
+    assert expr.model_dump() == {"$not": {"$eq": ["$status", "deleted"]}}
 
 
 # --- Flattening Tests ---
@@ -221,11 +204,7 @@ def test_and_flattening() -> None:
     assert isinstance(expr, AndExpr)
     assert len(expr.conditions) == 3
     assert expr.model_dump() == {
-        "$and": [
-            {"$eq": ["$a", 1]},
-            {"$eq": ["$b", 2]},
-            {"$eq": ["$c", 3]}
-        ]
+        "$and": [{"$eq": ["$a", 1]}, {"$eq": ["$b", 2]}, {"$eq": ["$c", 3]}]
     }
 
 
@@ -235,11 +214,7 @@ def test_or_flattening() -> None:
     assert isinstance(expr, OrExpr)
     assert len(expr.conditions) == 3
     assert expr.model_dump() == {
-        "$or": [
-            {"$eq": ["$a", 1]},
-            {"$eq": ["$b", 2]},
-            {"$eq": ["$c", 3]}
-        ]
+        "$or": [{"$eq": ["$a", 1]}, {"$eq": ["$b", 2]}, {"$eq": ["$c", 3]}]
     }
 
 
@@ -250,11 +225,8 @@ def test_deeply_nested_serialization(deeply_nested_expr: OrExpr) -> None:
     """Deeply nested expressions serialize correctly."""
     assert deeply_nested_expr.model_dump() == {
         "$or": [
-            {"$and": [
-                {"$eq": ["$x", 1]},
-                {"$lt": ["$y", 10]}
-            ]},
-            {"$gt": ["$z", 100]}
+            {"$and": [{"$eq": ["$x", 1]}, {"$lt": ["$y", 10]}]},
+            {"$gt": ["$z", 100]},
         ]
     }
 
@@ -265,10 +237,7 @@ def test_and_containing_or() -> None:
     assert expr.model_dump() == {
         "$and": [
             {"$eq": ["$a", 1]},
-            {"$or": [
-                {"$eq": ["$b", 2]},
-                {"$eq": ["$c", 3]}
-            ]}
+            {"$or": [{"$eq": ["$b", 2]}, {"$eq": ["$c", 3]}]},
         ]
     }
 
@@ -279,10 +248,7 @@ def test_or_containing_and() -> None:
     assert expr.model_dump() == {
         "$or": [
             {"$eq": ["$a", 1]},
-            {"$and": [
-                {"$eq": ["$b", 2]},
-                {"$eq": ["$c", 3]}
-            ]}
+            {"$and": [{"$eq": ["$b", 2]}, {"$eq": ["$c", 3]}]},
         ]
     }
 
@@ -319,10 +285,7 @@ def test_expr_with_expression_object(nested_and_expr: AndExpr) -> None:
     expr = Expr(expression=nested_and_expr)
     assert expr.model_dump() == {
         "$expr": {
-            "$and": [
-                {"$eq": ["$status", "active"]},
-                {"$gt": ["$age", 18]}
-            ]
+            "$and": [{"$eq": ["$status", "active"]}, {"$gt": ["$age", 18]}]
         }
     }
 
@@ -332,10 +295,7 @@ def test_expr_with_operator_built_expression() -> None:
     expr = Expr(expression=(F("status") == "active") & (F("age") > 18))
     assert expr.model_dump() == {
         "$expr": {
-            "$and": [
-                {"$eq": ["$status", "active"]},
-                {"$gt": ["$age", 18]}
-            ]
+            "$and": [{"$eq": ["$status", "active"]}, {"$gt": ["$age", 18]}]
         }
     }
 
@@ -351,32 +311,44 @@ def test_expr_with_raw_dict() -> None:
 
 def test_match_with_operator_expr() -> None:
     """Match stage with operator-built expression."""
-    pipeline = Pipeline([
-        Match(query=Expr(
-            expression=(F("status") == "active") & (F("age") > 18)
-        ).model_dump())
-    ])
+    pipeline = Pipeline(
+        [
+            Match(
+                query=Expr(
+                    expression=(F("status") == "active") & (F("age") > 18)
+                ).model_dump()
+            )
+        ]
+    )
     result = pipeline.to_list()
-    assert result == [{
-        "$match": {
-            "$expr": {
-                "$and": [
-                    {"$eq": ["$status", "active"]},
-                    {"$gt": ["$age", 18]}
-                ]
+    assert result == [
+        {
+            "$match": {
+                "$expr": {
+                    "$and": [
+                        {"$eq": ["$status", "active"]},
+                        {"$gt": ["$age", 18]},
+                    ]
+                }
             }
         }
-    }]
+    ]
 
 
 def test_pipeline_with_nested_expression() -> None:
     """Pipeline with complex nested expression."""
-    pipeline = Pipeline([
-        Match(query=Expr(expression=(
-            (F("active") == True)  # noqa: E712
-            & ((F("role") == "admin") | (F("level") >= 5))
-        )).model_dump())
-    ])
+    pipeline = Pipeline(
+        [
+            Match(
+                query=Expr(
+                    expression=(
+                        (F("active") == True)  # noqa: E712
+                        & ((F("role") == "admin") | (F("level") >= 5))
+                    )
+                ).model_dump()
+            )
+        ]
+    )
     result = pipeline.to_list()
     match_expr = result[0]["$match"]["$expr"]
 
@@ -390,14 +362,16 @@ def test_pipeline_with_nested_expression() -> None:
 
 def test_mixed_with_raw_dicts() -> None:
     """Expressions can be mixed with raw dicts."""
-    expr = AndExpr(conditions=[
-        EqExpr(left=F("a"), right=1),
-        {"$regex": {"input": "$name", "regex": "^test"}}
-    ])
+    expr = AndExpr(
+        conditions=[
+            EqExpr(left=F("a"), right=1),
+            {"$regex": {"input": "$name", "regex": "^test"}},
+        ]
+    )
     assert expr.model_dump() == {
         "$and": [
             {"$eq": ["$a", 1]},
-            {"$regex": {"input": "$name", "regex": "^test"}}
+            {"$regex": {"input": "$name", "regex": "^test"}},
         ]
     }
 
@@ -422,15 +396,18 @@ def test_existing_expr_with_raw_dict() -> None:
 # --- Parametrized Tests ---
 
 
-@pytest.mark.parametrize("value", [
-    10,
-    "string",
-    True,
-    False,
-    None,
-    3.14,
-    datetime(2024, 1, 1),
-])
+@pytest.mark.parametrize(
+    "value",
+    [
+        10,
+        "string",
+        True,
+        False,
+        None,
+        3.14,
+        datetime(2024, 1, 1),
+    ],
+)
 def test_eq_with_various_types(value) -> None:
     """EqExpr handles various Python types."""
     expr = F("field") == value
@@ -438,14 +415,17 @@ def test_eq_with_various_types(value) -> None:
     assert result == {"$eq": ["$field", value]}
 
 
-@pytest.mark.parametrize("op_method,expr_class,mongo_op", [
-    ("__eq__", EqExpr, "$eq"),
-    ("__ne__", NeExpr, "$ne"),
-    ("__gt__", GtExpr, "$gt"),
-    ("__ge__", GteExpr, "$gte"),
-    ("__lt__", LtExpr, "$lt"),
-    ("__le__", LteExpr, "$lte"),
-])
+@pytest.mark.parametrize(
+    "op_method,expr_class,mongo_op",
+    [
+        ("__eq__", EqExpr, "$eq"),
+        ("__ne__", NeExpr, "$ne"),
+        ("__gt__", GtExpr, "$gt"),
+        ("__ge__", GteExpr, "$gte"),
+        ("__lt__", LtExpr, "$lt"),
+        ("__le__", LteExpr, "$lte"),
+    ],
+)
 def test_all_comparison_operators(op_method, expr_class, mongo_op) -> None:
     """All comparison operators create correct expression types."""
     field = F("value")
@@ -1958,4 +1938,59 @@ def test_bottom_n_window_expr() -> None:
     expr = BottomNWindowExpr(n=3, sort_by={"score": 1}, output=F("name"))
     assert expr.model_dump() == {
         "$bottomN": {"n": 3, "sortBy": {"score": 1}, "output": "$name"}
+    }
+
+
+# --- Encrypted String Expression Tests ---
+
+
+def test_enc_str_contains_expr() -> None:
+    """EncStrContainsExpr serialization."""
+    from mongo_aggro.expressions import EncStrContainsExpr
+
+    expr = EncStrContainsExpr(input=F("encryptedField"), substring="search")
+    assert expr.model_dump() == {
+        "$encStrContains": {
+            "input": "$encryptedField",
+            "substring": "search",
+        }
+    }
+
+
+def test_enc_str_starts_with_expr() -> None:
+    """EncStrStartsWithExpr serialization."""
+    from mongo_aggro.expressions import EncStrStartsWithExpr
+
+    expr = EncStrStartsWithExpr(input=F("encryptedField"), prefix="abc")
+    assert expr.model_dump() == {
+        "$encStrStartsWith": {
+            "input": "$encryptedField",
+            "prefix": "abc",
+        }
+    }
+
+
+def test_enc_str_ends_with_expr() -> None:
+    """EncStrEndsWithExpr serialization."""
+    from mongo_aggro.expressions import EncStrEndsWithExpr
+
+    expr = EncStrEndsWithExpr(input=F("encryptedField"), suffix="xyz")
+    assert expr.model_dump() == {
+        "$encStrEndsWith": {
+            "input": "$encryptedField",
+            "suffix": "xyz",
+        }
+    }
+
+
+def test_enc_str_normalized_eq_expr() -> None:
+    """EncStrNormalizedEqExpr serialization."""
+    from mongo_aggro.expressions import EncStrNormalizedEqExpr
+
+    expr = EncStrNormalizedEqExpr(input=F("encryptedField"), value="test")
+    assert expr.model_dump() == {
+        "$encStrNormalizedEq": {
+            "input": "$encryptedField",
+            "value": "test",
+        }
     }

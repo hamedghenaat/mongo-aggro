@@ -114,6 +114,11 @@ from .expressions import (
     DerivativeExpr,
     DivideExpr,
     DocumentNumberExpr,
+    # Encrypted string expressions
+    EncStrContainsExpr,
+    EncStrEndsWithExpr,
+    EncStrNormalizedEqExpr,
+    EncStrStartsWithExpr,
     EqExpr,
     ExpExpr,
     ExpMovingAvgExpr,
@@ -455,6 +460,11 @@ __all__ = [
     "BottomExpr",
     "TopNWindowExpr",
     "BottomNWindowExpr",
+    # Encrypted string expressions
+    "EncStrContainsExpr",
+    "EncStrStartsWithExpr",
+    "EncStrEndsWithExpr",
+    "EncStrNormalizedEqExpr",
     # Query operators
     "QueryOperator",
     "And",

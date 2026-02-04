@@ -1511,6 +1511,66 @@ pipeline = Pipeline([
 
 ---
 
+## Encrypted String Expressions
+
+For MongoDB Queryable Encryption, use encrypted string expressions to search
+encrypted fields while maintaining data security.
+
+### EncStrContainsExpr - Contains Search
+
+```python
+from mongo_aggro import F, Match, Expr
+from mongo_aggro.expressions import EncStrContainsExpr
+
+# Search encrypted field for substring
+Match(query=Expr(expression=EncStrContainsExpr(
+    input=F("encryptedEmail"),
+    substring="@example.com"
+)).model_dump())
+# {"$match": {"$expr": {"$encStrContains": {
+#     "input": "$encryptedEmail",
+#     "substring": "@example.com"
+# }}}}
+```
+
+### EncStrStartsWithExpr - Prefix Search
+
+```python
+from mongo_aggro.expressions import EncStrStartsWithExpr
+
+# Search encrypted field by prefix
+Match(query=Expr(expression=EncStrStartsWithExpr(
+    input=F("encryptedName"),
+    prefix="John"
+)).model_dump())
+```
+
+### EncStrEndsWithExpr - Suffix Search
+
+```python
+from mongo_aggro.expressions import EncStrEndsWithExpr
+
+# Search encrypted field by suffix
+Match(query=Expr(expression=EncStrEndsWithExpr(
+    input=F("encryptedDomain"),
+    suffix=".org"
+)).model_dump())
+```
+
+### EncStrNormalizedEqExpr - Normalized Equality
+
+```python
+from mongo_aggro.expressions import EncStrNormalizedEqExpr
+
+# Case-insensitive equality on encrypted fields
+Match(query=Expr(expression=EncStrNormalizedEqExpr(
+    input=F("encryptedUsername"),
+    value="admin"
+)).model_dump())
+```
+
+---
+
 ## Real-World Examples
 
 ### E-commerce Order Processing

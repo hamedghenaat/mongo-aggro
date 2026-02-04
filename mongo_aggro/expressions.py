@@ -382,7 +382,12 @@ class SubtractExpr(ExpressionBase):
     @model_serializer
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $subtract expression."""
-        return {"$subtract": [serialize_value(self.left), serialize_value(self.right)]}
+        return {
+            "$subtract": [
+                serialize_value(self.left),
+                serialize_value(self.right),
+            ]
+        }
 
 
 class MultiplyExpr(ExpressionBase):
@@ -418,7 +423,10 @@ class DivideExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $divide expression."""
         return {
-            "$divide": [serialize_value(self.dividend), serialize_value(self.divisor)]
+            "$divide": [
+                serialize_value(self.dividend),
+                serialize_value(self.divisor),
+            ]
         }
 
 
@@ -455,7 +463,10 @@ class ModExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $mod expression."""
         return {
-            "$mod": [serialize_value(self.dividend), serialize_value(self.divisor)]
+            "$mod": [
+                serialize_value(self.dividend),
+                serialize_value(self.divisor),
+            ]
         }
 
 
@@ -507,7 +518,10 @@ class IfNullExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $ifNull expression."""
         return {
-            "$ifNull": [serialize_value(self.input), serialize_value(self.replacement)]
+            "$ifNull": [
+                serialize_value(self.input),
+                serialize_value(self.replacement),
+            ]
         }
 
 
@@ -672,7 +686,9 @@ class SliceExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $slice expression."""
         if self.position is not None:
-            return {"$slice": [serialize_value(self.array), self.position, self.n]}
+            return {
+                "$slice": [serialize_value(self.array), self.position, self.n]
+            }
         return {"$slice": [serialize_value(self.array), self.n]}
 
 
@@ -937,7 +953,9 @@ class DateFromStringExpr(ExpressionBase):
         if self.timezone:
             result["$dateFromString"]["timezone"] = self.timezone
         if self.on_error is not None:
-            result["$dateFromString"]["onError"] = serialize_value(self.on_error)
+            result["$dateFromString"]["onError"] = serialize_value(
+                self.on_error
+            )
         if self.on_null is not None:
             result["$dateFromString"]["onNull"] = serialize_value(self.on_null)
         return result
@@ -1684,7 +1702,9 @@ class TrimExpr(ExpressionBase):
     @model_serializer
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $trim expression."""
-        result: dict[str, Any] = {"$trim": {"input": serialize_value(self.input)}}
+        result: dict[str, Any] = {
+            "$trim": {"input": serialize_value(self.input)}
+        }
         if self.chars is not None:
             result["$trim"]["chars"] = self.chars
         return result
@@ -1705,7 +1725,9 @@ class LTrimExpr(ExpressionBase):
     @model_serializer
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $ltrim expression."""
-        result: dict[str, Any] = {"$ltrim": {"input": serialize_value(self.input)}}
+        result: dict[str, Any] = {
+            "$ltrim": {"input": serialize_value(self.input)}
+        }
         if self.chars is not None:
             result["$ltrim"]["chars"] = self.chars
         return result
@@ -1726,7 +1748,9 @@ class RTrimExpr(ExpressionBase):
     @model_serializer
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $rtrim expression."""
-        result: dict[str, Any] = {"$rtrim": {"input": serialize_value(self.input)}}
+        result: dict[str, Any] = {
+            "$rtrim": {"input": serialize_value(self.input)}
+        }
         if self.chars is not None:
             result["$rtrim"]["chars"] = self.chars
         return result
@@ -2290,9 +2314,7 @@ class Atan2Expr(ExpressionBase):
     @model_serializer
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $atan2 expression."""
-        return {
-            "$atan2": [serialize_value(self.y), serialize_value(self.x)]
-        }
+        return {"$atan2": [serialize_value(self.y), serialize_value(self.x)]}
 
 
 class SinhExpr(ExpressionBase):
@@ -3283,5 +3305,108 @@ class BottomNWindowExpr(ExpressionBase):
                 "n": serialize_value(self.n),
                 "sortBy": self.sort_by,
                 "output": serialize_value(self.output),
+            }
+        }
+
+
+# --- Encrypted String Expression Operators ---
+
+
+class EncStrContainsExpr(ExpressionBase):
+    """
+    $encStrContains expression - checks if encrypted string contains substring.
+
+    Used with Queryable Encryption for searching encrypted fields.
+
+    Example:
+        >>> EncStrContainsExpr(input=F("encryptedField"), substring="search").model_dump()
+        {"$encStrContains": {"input": "$encryptedField", "substring": "search"}}
+    """
+
+    input: Any
+    substring: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $encStrContains expression."""
+        return {
+            "$encStrContains": {
+                "input": serialize_value(self.input),
+                "substring": serialize_value(self.substring),
+            }
+        }
+
+
+class EncStrStartsWithExpr(ExpressionBase):
+    """
+    $encStrStartsWith expression - checks if encrypted string starts with prefix.
+
+    Used with Queryable Encryption for searching encrypted fields.
+
+    Example:
+        >>> EncStrStartsWithExpr(input=F("encryptedField"), prefix="abc").model_dump()
+        {"$encStrStartsWith": {"input": "$encryptedField", "prefix": "abc"}}
+    """
+
+    input: Any
+    prefix: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $encStrStartsWith expression."""
+        return {
+            "$encStrStartsWith": {
+                "input": serialize_value(self.input),
+                "prefix": serialize_value(self.prefix),
+            }
+        }
+
+
+class EncStrEndsWithExpr(ExpressionBase):
+    """
+    $encStrEndsWith expression - checks if encrypted string ends with suffix.
+
+    Used with Queryable Encryption for searching encrypted fields.
+
+    Example:
+        >>> EncStrEndsWithExpr(input=F("encryptedField"), suffix="xyz").model_dump()
+        {"$encStrEndsWith": {"input": "$encryptedField", "suffix": "xyz"}}
+    """
+
+    input: Any
+    suffix: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $encStrEndsWith expression."""
+        return {
+            "$encStrEndsWith": {
+                "input": serialize_value(self.input),
+                "suffix": serialize_value(self.suffix),
+            }
+        }
+
+
+class EncStrNormalizedEqExpr(ExpressionBase):
+    """
+    $encStrNormalizedEq expression - normalized equality for encrypted strings.
+
+    Used with Queryable Encryption for case-insensitive matching.
+
+    Example:
+        >>> EncStrNormalizedEqExpr(input=F("encryptedField"), value="test").model_dump()
+        {"$encStrNormalizedEq": {"input": "$encryptedField", "value": "test"}}
+    """
+
+    input: Any
+    value: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $encStrNormalizedEq expression."""
+        return {
+            "$encStrNormalizedEq": {
+                "input": serialize_value(self.input),
+                "value": serialize_value(self.value),
             }
         }
