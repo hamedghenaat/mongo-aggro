@@ -183,3 +183,72 @@ These expressions combine comparison expressions using `&`, `|`, and `~`.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Date Expressions
+
+::: mongo_aggro.DateAddExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateSubtractExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateDiffExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateToStringExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateFromStringExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Type Conversion Expressions
+
+::: mongo_aggro.ToDateExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToStringExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToIntExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToDoubleExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToBoolExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ToObjectIdExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ConvertExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TypeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3

@@ -69,6 +69,14 @@ from .expressions import (
     ConcatExpr,
     # Conditional expressions
     CondExpr,
+    # Type conversion expressions
+    ConvertExpr,
+    # Date expressions
+    DateAddExpr,
+    DateDiffExpr,
+    DateFromStringExpr,
+    DateSubtractExpr,
+    DateToStringExpr,
     DivideExpr,
     EqExpr,
     ExpressionBase,
@@ -94,8 +102,15 @@ from .expressions import (
     SubtractExpr,
     SwitchBranch,
     SwitchExpr,
+    ToBoolExpr,
+    ToDateExpr,
+    ToDoubleExpr,
+    ToIntExpr,
     ToLowerExpr,
+    ToObjectIdExpr,
+    ToStringExpr,
     ToUpperExpr,
+    TypeExpr,
 )
 from .operators import (
     All,
@@ -198,6 +213,21 @@ __all__ = [
     "FilterExpr",
     "MapExpr",
     "ReduceExpr",
+    # Date expressions
+    "DateAddExpr",
+    "DateSubtractExpr",
+    "DateDiffExpr",
+    "DateToStringExpr",
+    "DateFromStringExpr",
+    # Type conversion expressions
+    "ToDateExpr",
+    "ToStringExpr",
+    "ToIntExpr",
+    "ToDoubleExpr",
+    "ToBoolExpr",
+    "ToObjectIdExpr",
+    "ConvertExpr",
+    "TypeExpr",
     # Query operators
     "QueryOperator",
     "And",

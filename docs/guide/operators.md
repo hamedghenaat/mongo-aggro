@@ -428,6 +428,209 @@ joined = ReduceExpr(
 
 ---
 
+## Date Expressions
+
+Work with date and time values in documents.
+
+### DateAddExpr / DateSubtractExpr - Add/Subtract Time
+
+```python
+from mongo_aggro import F, DateAddExpr, DateSubtractExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Add 7 days to order date
+        "deliveryDate": DateAddExpr(
+            start_date=F("orderDate"),
+            unit="day",
+            amount=7
+        ).model_dump(),
+        
+        # Subtract 1 month
+        "previousMonth": DateSubtractExpr(
+            start_date=F("reportDate"),
+            unit="month",
+            amount=1
+        ).model_dump(),
+    })
+])
+
+# With timezone
+delivery = DateAddExpr(
+    start_date=F("orderDate"),
+    unit="hour",
+    amount=48,
+    timezone="America/New_York"
+)
+```
+
+**Supported units:** year, quarter, month, week, day, hour, minute, second, millisecond
+
+### DateDiffExpr - Calculate Date Difference
+
+```python
+from mongo_aggro import F, DateDiffExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Days between order and delivery
+        "deliveryDays": DateDiffExpr(
+            start_date=F("orderDate"),
+            end_date=F("deliveryDate"),
+            unit="day"
+        ).model_dump(),
+        
+        # Age in years
+        "age": DateDiffExpr(
+            start_date=F("birthDate"),
+            end_date="$$NOW",
+            unit="year"
+        ).model_dump(),
+    })
+])
+```
+
+### DateToStringExpr - Format Date as String
+
+```python
+from mongo_aggro import F, DateToStringExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Format as ISO date
+        "dateStr": DateToStringExpr(
+            date=F("createdAt"),
+            format="%Y-%m-%d"
+        ).model_dump(),
+        
+        # Full format with time
+        "fullDateTime": DateToStringExpr(
+            date=F("timestamp"),
+            format="%Y-%m-%d %H:%M:%S",
+            timezone="UTC"
+        ).model_dump(),
+        
+        # Handle null dates
+        "safeDate": DateToStringExpr(
+            date=F("optionalDate"),
+            format="%Y-%m-%d",
+            on_null="N/A"
+        ).model_dump(),
+    })
+])
+```
+
+### DateFromStringExpr - Parse String to Date
+
+```python
+from mongo_aggro import F, DateFromStringExpr, Project, Pipeline
+from datetime import datetime
+
+pipeline = Pipeline([
+    Project(fields={
+        "parsedDate": DateFromStringExpr(
+            date_string=F("dateStr"),
+            format="%Y-%m-%d"
+        ).model_dump(),
+        
+        # With error handling
+        "safeDate": DateFromStringExpr(
+            date_string=F("dateInput"),
+            format="%m/%d/%Y",
+            on_error=datetime(2000, 1, 1),
+            on_null=datetime(2000, 1, 1)
+        ).model_dump(),
+    })
+])
+```
+
+---
+
+## Type Conversion Expressions
+
+Convert values between different BSON types.
+
+### Simple Type Conversions
+
+```python
+from mongo_aggro import (
+    F, ToDateExpr, ToStringExpr, ToIntExpr, 
+    ToDoubleExpr, ToBoolExpr, ToObjectIdExpr,
+    Project, Pipeline
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # String to Date
+        "date": ToDateExpr(input=F("dateString")).model_dump(),
+        
+        # Number to String
+        "idStr": ToStringExpr(input=F("numericId")).model_dump(),
+        
+        # String to Integer
+        "count": ToIntExpr(input=F("countStr")).model_dump(),
+        
+        # Integer to Double
+        "price": ToDoubleExpr(input=F("priceInt")).model_dump(),
+        
+        # To Boolean (0/null = false, else true)
+        "isActive": ToBoolExpr(input=F("activeFlag")).model_dump(),
+        
+        # String to ObjectId
+        "userId": ToObjectIdExpr(input=F("userIdStr")).model_dump(),
+    })
+])
+```
+
+### ConvertExpr - Generic Conversion with Error Handling
+
+```python
+from mongo_aggro import F, ConvertExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Convert with error handling
+        "safeInt": ConvertExpr(
+            input=F("maybeNumber"),
+            to="int",
+            on_error=0,
+            on_null=-1
+        ).model_dump(),
+        
+        # Convert to decimal
+        "preciseValue": ConvertExpr(
+            input=F("value"),
+            to="decimal",
+            on_error=None
+        ).model_dump(),
+    })
+])
+```
+
+**Supported types:** double, string, objectId, bool, date, int, long, decimal
+
+### TypeExpr - Get BSON Type
+
+```python
+from mongo_aggro import F, TypeExpr, CondExpr, Project, Pipeline
+
+pipeline = Pipeline([
+    Project(fields={
+        # Get the type of a field
+        "fieldType": TypeExpr(input=F("dynamicField")).model_dump(),
+        
+        # Conditional based on type
+        "value": CondExpr(
+            if_=(TypeExpr(input=F("data")) == "string"),
+            then=F("data"),
+            else_=ToStringExpr(input=F("data"))
+        ).model_dump(),
+    })
+])
+```
+
+---
+
 ## Real-World Examples
 
 ### E-commerce Order Processing

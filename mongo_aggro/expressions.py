@@ -765,3 +765,331 @@ class ReduceExpr(ExpressionBase):
                 "in": serialize_value(self.in_),
             }
         }
+
+
+# --- Date Expression Operators ---
+
+
+class DateAddExpr(ExpressionBase):
+    """
+    $dateAdd expression operator - adds time to a date.
+
+    Example:
+        >>> DateAddExpr(
+        ...     start_date=F("orderDate"),
+        ...     unit="day",
+        ...     amount=7
+        ... ).model_dump()
+        {"$dateAdd": {"startDate": "$orderDate", "unit": "day", "amount": 7}}
+    """
+
+    start_date: Any
+    unit: str
+    amount: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateAdd expression."""
+        result: dict[str, Any] = {
+            "$dateAdd": {
+                "startDate": serialize_value(self.start_date),
+                "unit": self.unit,
+                "amount": serialize_value(self.amount),
+            }
+        }
+        if self.timezone:
+            result["$dateAdd"]["timezone"] = self.timezone
+        return result
+
+
+class DateSubtractExpr(ExpressionBase):
+    """
+    $dateSubtract expression operator - subtracts time from a date.
+
+    Example:
+        >>> DateSubtractExpr(
+        ...     start_date=F("endDate"),
+        ...     unit="month",
+        ...     amount=1
+        ... ).model_dump()
+        {"$dateSubtract": {"startDate": "$endDate", "unit": "month", "amount": 1}}
+    """
+
+    start_date: Any
+    unit: str
+    amount: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateSubtract expression."""
+        result: dict[str, Any] = {
+            "$dateSubtract": {
+                "startDate": serialize_value(self.start_date),
+                "unit": self.unit,
+                "amount": serialize_value(self.amount),
+            }
+        }
+        if self.timezone:
+            result["$dateSubtract"]["timezone"] = self.timezone
+        return result
+
+
+class DateDiffExpr(ExpressionBase):
+    """
+    $dateDiff expression operator - calculates difference between dates.
+
+    Example:
+        >>> DateDiffExpr(
+        ...     start_date=F("start"),
+        ...     end_date=F("end"),
+        ...     unit="day"
+        ... ).model_dump()
+        {"$dateDiff": {"startDate": "$start", "endDate": "$end", "unit": "day"}}
+    """
+
+    start_date: Any
+    end_date: Any
+    unit: str
+    timezone: str | None = None
+    start_of_week: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateDiff expression."""
+        result: dict[str, Any] = {
+            "$dateDiff": {
+                "startDate": serialize_value(self.start_date),
+                "endDate": serialize_value(self.end_date),
+                "unit": self.unit,
+            }
+        }
+        if self.timezone:
+            result["$dateDiff"]["timezone"] = self.timezone
+        if self.start_of_week:
+            result["$dateDiff"]["startOfWeek"] = self.start_of_week
+        return result
+
+
+class DateToStringExpr(ExpressionBase):
+    """
+    $dateToString expression operator - converts date to string.
+
+    Example:
+        >>> DateToStringExpr(
+        ...     date=F("orderDate"),
+        ...     format="%Y-%m-%d"
+        ... ).model_dump()
+        {"$dateToString": {"date": "$orderDate", "format": "%Y-%m-%d"}}
+    """
+
+    date: Any
+    format: str | None = None
+    timezone: str | None = None
+    on_null: Any = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateToString expression."""
+        result: dict[str, Any] = {
+            "$dateToString": {
+                "date": serialize_value(self.date),
+            }
+        }
+        if self.format:
+            result["$dateToString"]["format"] = self.format
+        if self.timezone:
+            result["$dateToString"]["timezone"] = self.timezone
+        if self.on_null is not None:
+            result["$dateToString"]["onNull"] = serialize_value(self.on_null)
+        return result
+
+
+class DateFromStringExpr(ExpressionBase):
+    """
+    $dateFromString expression operator - parses string to date.
+
+    Example:
+        >>> DateFromStringExpr(
+        ...     date_string=F("dateStr"),
+        ...     format="%Y-%m-%d"
+        ... ).model_dump()
+        {"$dateFromString": {"dateString": "$dateStr", "format": "%Y-%m-%d"}}
+    """
+
+    date_string: Any
+    format: str | None = None
+    timezone: str | None = None
+    on_error: Any = None
+    on_null: Any = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateFromString expression."""
+        result: dict[str, Any] = {
+            "$dateFromString": {
+                "dateString": serialize_value(self.date_string),
+            }
+        }
+        if self.format:
+            result["$dateFromString"]["format"] = self.format
+        if self.timezone:
+            result["$dateFromString"]["timezone"] = self.timezone
+        if self.on_error is not None:
+            result["$dateFromString"]["onError"] = serialize_value(self.on_error)
+        if self.on_null is not None:
+            result["$dateFromString"]["onNull"] = serialize_value(self.on_null)
+        return result
+
+
+# --- Type Conversion Expression Operators ---
+
+
+class ToDateExpr(ExpressionBase):
+    """
+    $toDate expression operator - converts value to date.
+
+    Example:
+        >>> ToDateExpr(input=F("dateString")).model_dump()
+        {"$toDate": "$dateString"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toDate expression."""
+        return {"$toDate": serialize_value(self.input)}
+
+
+class ToStringExpr(ExpressionBase):
+    """
+    $toString expression operator - converts value to string.
+
+    Example:
+        >>> ToStringExpr(input=F("numericId")).model_dump()
+        {"$toString": "$numericId"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toString expression."""
+        return {"$toString": serialize_value(self.input)}
+
+
+class ToIntExpr(ExpressionBase):
+    """
+    $toInt expression operator - converts value to integer.
+
+    Example:
+        >>> ToIntExpr(input=F("stringNum")).model_dump()
+        {"$toInt": "$stringNum"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toInt expression."""
+        return {"$toInt": serialize_value(self.input)}
+
+
+class ToDoubleExpr(ExpressionBase):
+    """
+    $toDouble expression operator - converts value to double.
+
+    Example:
+        >>> ToDoubleExpr(input=F("intValue")).model_dump()
+        {"$toDouble": "$intValue"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toDouble expression."""
+        return {"$toDouble": serialize_value(self.input)}
+
+
+class ToBoolExpr(ExpressionBase):
+    """
+    $toBool expression operator - converts value to boolean.
+
+    Example:
+        >>> ToBoolExpr(input=F("flag")).model_dump()
+        {"$toBool": "$flag"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toBool expression."""
+        return {"$toBool": serialize_value(self.input)}
+
+
+class ToObjectIdExpr(ExpressionBase):
+    """
+    $toObjectId expression operator - converts value to ObjectId.
+
+    Example:
+        >>> ToObjectIdExpr(input=F("idString")).model_dump()
+        {"$toObjectId": "$idString"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $toObjectId expression."""
+        return {"$toObjectId": serialize_value(self.input)}
+
+
+class ConvertExpr(ExpressionBase):
+    """
+    $convert expression operator - converts value to specified type.
+
+    Example:
+        >>> ConvertExpr(input=F("value"), to="int").model_dump()
+        {"$convert": {"input": "$value", "to": "int"}}
+    """
+
+    input: Any
+    to: str
+    on_error: Any = None
+    on_null: Any = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $convert expression."""
+        result: dict[str, Any] = {
+            "$convert": {
+                "input": serialize_value(self.input),
+                "to": self.to,
+            }
+        }
+        if self.on_error is not None:
+            result["$convert"]["onError"] = serialize_value(self.on_error)
+        if self.on_null is not None:
+            result["$convert"]["onNull"] = serialize_value(self.on_null)
+        return result
+
+
+class TypeExpr(ExpressionBase):
+    """
+    $type expression operator - returns BSON type of a value.
+
+    Example:
+        >>> TypeExpr(input=F("field")).model_dump()
+        {"$type": "$field"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $type expression."""
+        return {"$type": serialize_value(self.input)}

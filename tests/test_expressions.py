@@ -730,3 +730,228 @@ def test_cond_with_comparison() -> None:
     assert result["$cond"]["if"] == {"$gt": ["$qty", 100]}
     assert result["$cond"]["then"] == {"$multiply": ["$price", 0.9]}
     assert result["$cond"]["else"] == "$price"
+
+
+# --- Date Expression Tests ---
+
+
+def test_date_add_expr() -> None:
+    """DateAddExpr serialization."""
+    from mongo_aggro.expressions import DateAddExpr
+
+    expr = DateAddExpr(start_date=F("orderDate"), unit="day", amount=7)
+    result = expr.model_dump()
+    assert result == {
+        "$dateAdd": {
+            "startDate": "$orderDate",
+            "unit": "day",
+            "amount": 7,
+        }
+    }
+
+
+def test_date_add_expr_with_timezone() -> None:
+    """DateAddExpr with timezone."""
+    from mongo_aggro.expressions import DateAddExpr
+
+    expr = DateAddExpr(
+        start_date=F("date"),
+        unit="hour",
+        amount=2,
+        timezone="America/New_York",
+    )
+    result = expr.model_dump()
+    assert result["$dateAdd"]["timezone"] == "America/New_York"
+
+
+def test_date_subtract_expr() -> None:
+    """DateSubtractExpr serialization."""
+    from mongo_aggro.expressions import DateSubtractExpr
+
+    expr = DateSubtractExpr(start_date=F("endDate"), unit="month", amount=1)
+    result = expr.model_dump()
+    assert result == {
+        "$dateSubtract": {
+            "startDate": "$endDate",
+            "unit": "month",
+            "amount": 1,
+        }
+    }
+
+
+def test_date_diff_expr() -> None:
+    """DateDiffExpr serialization."""
+    from mongo_aggro.expressions import DateDiffExpr
+
+    expr = DateDiffExpr(start_date=F("start"), end_date=F("end"), unit="day")
+    result = expr.model_dump()
+    assert result == {
+        "$dateDiff": {
+            "startDate": "$start",
+            "endDate": "$end",
+            "unit": "day",
+        }
+    }
+
+
+def test_date_diff_expr_with_options() -> None:
+    """DateDiffExpr with timezone and startOfWeek."""
+    from mongo_aggro.expressions import DateDiffExpr
+
+    expr = DateDiffExpr(
+        start_date=F("start"),
+        end_date=F("end"),
+        unit="week",
+        timezone="UTC",
+        start_of_week="monday",
+    )
+    result = expr.model_dump()
+    assert result["$dateDiff"]["timezone"] == "UTC"
+    assert result["$dateDiff"]["startOfWeek"] == "monday"
+
+
+def test_date_to_string_expr() -> None:
+    """DateToStringExpr serialization."""
+    from mongo_aggro.expressions import DateToStringExpr
+
+    expr = DateToStringExpr(date=F("orderDate"), format="%Y-%m-%d")
+    result = expr.model_dump()
+    assert result == {
+        "$dateToString": {
+            "date": "$orderDate",
+            "format": "%Y-%m-%d",
+        }
+    }
+
+
+def test_date_to_string_expr_with_options() -> None:
+    """DateToStringExpr with all options."""
+    from mongo_aggro.expressions import DateToStringExpr
+
+    expr = DateToStringExpr(
+        date=F("date"),
+        format="%Y-%m-%d %H:%M",
+        timezone="Europe/London",
+        on_null="N/A",
+    )
+    result = expr.model_dump()
+    assert result["$dateToString"]["timezone"] == "Europe/London"
+    assert result["$dateToString"]["onNull"] == "N/A"
+
+
+def test_date_from_string_expr() -> None:
+    """DateFromStringExpr serialization."""
+    from mongo_aggro.expressions import DateFromStringExpr
+
+    expr = DateFromStringExpr(date_string=F("dateStr"), format="%Y-%m-%d")
+    result = expr.model_dump()
+    assert result == {
+        "$dateFromString": {
+            "dateString": "$dateStr",
+            "format": "%Y-%m-%d",
+        }
+    }
+
+
+def test_date_from_string_expr_with_error_handling() -> None:
+    """DateFromStringExpr with error handling."""
+    from datetime import datetime
+
+    from mongo_aggro.expressions import DateFromStringExpr
+
+    default_date = datetime(2020, 1, 1)
+    expr = DateFromStringExpr(
+        date_string=F("dateStr"),
+        on_error=default_date,
+        on_null=default_date,
+    )
+    result = expr.model_dump()
+    assert result["$dateFromString"]["onError"] == default_date
+    assert result["$dateFromString"]["onNull"] == default_date
+
+
+# --- Type Conversion Expression Tests ---
+
+
+def test_to_date_expr() -> None:
+    """ToDateExpr serialization."""
+    from mongo_aggro.expressions import ToDateExpr
+
+    expr = ToDateExpr(input=F("dateString"))
+    assert expr.model_dump() == {"$toDate": "$dateString"}
+
+
+def test_to_string_expr() -> None:
+    """ToStringExpr serialization."""
+    from mongo_aggro.expressions import ToStringExpr
+
+    expr = ToStringExpr(input=F("numericId"))
+    assert expr.model_dump() == {"$toString": "$numericId"}
+
+
+def test_to_int_expr() -> None:
+    """ToIntExpr serialization."""
+    from mongo_aggro.expressions import ToIntExpr
+
+    expr = ToIntExpr(input=F("stringNum"))
+    assert expr.model_dump() == {"$toInt": "$stringNum"}
+
+
+def test_to_double_expr() -> None:
+    """ToDoubleExpr serialization."""
+    from mongo_aggro.expressions import ToDoubleExpr
+
+    expr = ToDoubleExpr(input=F("intValue"))
+    assert expr.model_dump() == {"$toDouble": "$intValue"}
+
+
+def test_to_bool_expr() -> None:
+    """ToBoolExpr serialization."""
+    from mongo_aggro.expressions import ToBoolExpr
+
+    expr = ToBoolExpr(input=F("flag"))
+    assert expr.model_dump() == {"$toBool": "$flag"}
+
+
+def test_to_object_id_expr() -> None:
+    """ToObjectIdExpr serialization."""
+    from mongo_aggro.expressions import ToObjectIdExpr
+
+    expr = ToObjectIdExpr(input=F("idString"))
+    assert expr.model_dump() == {"$toObjectId": "$idString"}
+
+
+def test_convert_expr() -> None:
+    """ConvertExpr serialization."""
+    from mongo_aggro.expressions import ConvertExpr
+
+    expr = ConvertExpr(input=F("value"), to="int")
+    assert expr.model_dump() == {
+        "$convert": {
+            "input": "$value",
+            "to": "int",
+        }
+    }
+
+
+def test_convert_expr_with_error_handling() -> None:
+    """ConvertExpr with error handling."""
+    from mongo_aggro.expressions import ConvertExpr
+
+    expr = ConvertExpr(
+        input=F("value"),
+        to="double",
+        on_error=0.0,
+        on_null=-1.0,
+    )
+    result = expr.model_dump()
+    assert result["$convert"]["onError"] == 0.0
+    assert result["$convert"]["onNull"] == -1.0
+
+
+def test_type_expr() -> None:
+    """TypeExpr serialization."""
+    from mongo_aggro.expressions import TypeExpr
+
+    expr = TypeExpr(input=F("field"))
+    assert expr.model_dump() == {"$type": "$field"}
