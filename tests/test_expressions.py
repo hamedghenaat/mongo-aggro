@@ -1443,3 +1443,366 @@ def test_is_number_expr() -> None:
 
     expr = IsNumberExpr(input=F("value"))
     assert expr.model_dump() == {"$isNumber": "$value"}
+
+
+# --- Trigonometry Expression Tests ---
+
+
+def test_sin_expr() -> None:
+    """SinExpr serialization."""
+    from mongo_aggro.expressions import SinExpr
+
+    expr = SinExpr(input=F("angle"))
+    assert expr.model_dump() == {"$sin": "$angle"}
+
+
+def test_cos_expr() -> None:
+    """CosExpr serialization."""
+    from mongo_aggro.expressions import CosExpr
+
+    expr = CosExpr(input=F("angle"))
+    assert expr.model_dump() == {"$cos": "$angle"}
+
+
+def test_tan_expr() -> None:
+    """TanExpr serialization."""
+    from mongo_aggro.expressions import TanExpr
+
+    expr = TanExpr(input=F("angle"))
+    assert expr.model_dump() == {"$tan": "$angle"}
+
+
+def test_asin_expr() -> None:
+    """AsinExpr serialization."""
+    from mongo_aggro.expressions import AsinExpr
+
+    expr = AsinExpr(input=F("value"))
+    assert expr.model_dump() == {"$asin": "$value"}
+
+
+def test_acos_expr() -> None:
+    """AcosExpr serialization."""
+    from mongo_aggro.expressions import AcosExpr
+
+    expr = AcosExpr(input=F("value"))
+    assert expr.model_dump() == {"$acos": "$value"}
+
+
+def test_atan_expr() -> None:
+    """AtanExpr serialization."""
+    from mongo_aggro.expressions import AtanExpr
+
+    expr = AtanExpr(input=F("value"))
+    assert expr.model_dump() == {"$atan": "$value"}
+
+
+def test_atan2_expr() -> None:
+    """Atan2Expr serialization."""
+    from mongo_aggro.expressions import Atan2Expr
+
+    expr = Atan2Expr(y=F("y"), x=F("x"))
+    assert expr.model_dump() == {"$atan2": ["$y", "$x"]}
+
+
+def test_sinh_expr() -> None:
+    """SinhExpr serialization."""
+    from mongo_aggro.expressions import SinhExpr
+
+    expr = SinhExpr(input=F("value"))
+    assert expr.model_dump() == {"$sinh": "$value"}
+
+
+def test_cosh_expr() -> None:
+    """CoshExpr serialization."""
+    from mongo_aggro.expressions import CoshExpr
+
+    expr = CoshExpr(input=F("value"))
+    assert expr.model_dump() == {"$cosh": "$value"}
+
+
+def test_tanh_expr() -> None:
+    """TanhExpr serialization."""
+    from mongo_aggro.expressions import TanhExpr
+
+    expr = TanhExpr(input=F("value"))
+    assert expr.model_dump() == {"$tanh": "$value"}
+
+
+def test_asinh_expr() -> None:
+    """AsinhExpr serialization."""
+    from mongo_aggro.expressions import AsinhExpr
+
+    expr = AsinhExpr(input=F("value"))
+    assert expr.model_dump() == {"$asinh": "$value"}
+
+
+def test_acosh_expr() -> None:
+    """AcoshExpr serialization."""
+    from mongo_aggro.expressions import AcoshExpr
+
+    expr = AcoshExpr(input=F("value"))
+    assert expr.model_dump() == {"$acosh": "$value"}
+
+
+def test_atanh_expr() -> None:
+    """AtanhExpr serialization."""
+    from mongo_aggro.expressions import AtanhExpr
+
+    expr = AtanhExpr(input=F("value"))
+    assert expr.model_dump() == {"$atanh": "$value"}
+
+
+def test_degrees_to_radians_expr() -> None:
+    """DegreesToRadiansExpr serialization."""
+    from mongo_aggro.expressions import DegreesToRadiansExpr
+
+    expr = DegreesToRadiansExpr(input=F("degrees"))
+    assert expr.model_dump() == {"$degreesToRadians": "$degrees"}
+
+
+def test_radians_to_degrees_expr() -> None:
+    """RadiansToDegreesExpr serialization."""
+    from mongo_aggro.expressions import RadiansToDegreesExpr
+
+    expr = RadiansToDegreesExpr(input=F("radians"))
+    assert expr.model_dump() == {"$radiansToDegrees": "$radians"}
+
+
+# --- Bitwise Expression Tests ---
+
+
+def test_bit_and_expr() -> None:
+    """BitAndExpr serialization."""
+    from mongo_aggro.expressions import BitAndExpr
+
+    expr = BitAndExpr(operands=[F("a"), F("b")])
+    assert expr.model_dump() == {"$bitAnd": ["$a", "$b"]}
+
+
+def test_bit_or_expr() -> None:
+    """BitOrExpr serialization."""
+    from mongo_aggro.expressions import BitOrExpr
+
+    expr = BitOrExpr(operands=[F("a"), F("b")])
+    assert expr.model_dump() == {"$bitOr": ["$a", "$b"]}
+
+
+def test_bit_xor_expr() -> None:
+    """BitXorExpr serialization."""
+    from mongo_aggro.expressions import BitXorExpr
+
+    expr = BitXorExpr(operands=[F("a"), F("b")])
+    assert expr.model_dump() == {"$bitXor": ["$a", "$b"]}
+
+
+def test_bit_not_expr() -> None:
+    """BitNotExpr serialization."""
+    from mongo_aggro.expressions import BitNotExpr
+
+    expr = BitNotExpr(input=F("value"))
+    assert expr.model_dump() == {"$bitNot": "$value"}
+
+
+# --- Data Size Expression Tests ---
+
+
+def test_bson_size_expr() -> None:
+    """BsonSizeExpr serialization."""
+    from mongo_aggro.expressions import BsonSizeExpr
+
+    expr = BsonSizeExpr(input=F("doc"))
+    assert expr.model_dump() == {"$bsonSize": "$doc"}
+
+
+def test_binary_size_expr() -> None:
+    """BinarySizeExpr serialization."""
+    from mongo_aggro.expressions import BinarySizeExpr
+
+    expr = BinarySizeExpr(input=F("data"))
+    assert expr.model_dump() == {"$binarySize": "$data"}
+
+
+# --- Date Part Expression Tests ---
+
+
+def test_year_expr() -> None:
+    """YearExpr serialization."""
+    from mongo_aggro.expressions import YearExpr
+
+    expr = YearExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$year": "$createdAt"}
+
+
+def test_year_expr_with_timezone() -> None:
+    """YearExpr with timezone."""
+    from mongo_aggro.expressions import YearExpr
+
+    expr = YearExpr(date=F("createdAt"), timezone="UTC")
+    assert expr.model_dump() == {
+        "$year": {"date": "$createdAt", "timezone": "UTC"}
+    }
+
+
+def test_month_expr() -> None:
+    """MonthExpr serialization."""
+    from mongo_aggro.expressions import MonthExpr
+
+    expr = MonthExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$month": "$createdAt"}
+
+
+def test_day_of_month_expr() -> None:
+    """DayOfMonthExpr serialization."""
+    from mongo_aggro.expressions import DayOfMonthExpr
+
+    expr = DayOfMonthExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$dayOfMonth": "$createdAt"}
+
+
+def test_day_of_week_expr() -> None:
+    """DayOfWeekExpr serialization."""
+    from mongo_aggro.expressions import DayOfWeekExpr
+
+    expr = DayOfWeekExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$dayOfWeek": "$createdAt"}
+
+
+def test_day_of_year_expr() -> None:
+    """DayOfYearExpr serialization."""
+    from mongo_aggro.expressions import DayOfYearExpr
+
+    expr = DayOfYearExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$dayOfYear": "$createdAt"}
+
+
+def test_hour_expr() -> None:
+    """HourExpr serialization."""
+    from mongo_aggro.expressions import HourExpr
+
+    expr = HourExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$hour": "$createdAt"}
+
+
+def test_minute_expr() -> None:
+    """MinuteExpr serialization."""
+    from mongo_aggro.expressions import MinuteExpr
+
+    expr = MinuteExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$minute": "$createdAt"}
+
+
+def test_second_expr() -> None:
+    """SecondExpr serialization."""
+    from mongo_aggro.expressions import SecondExpr
+
+    expr = SecondExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$second": "$createdAt"}
+
+
+def test_millisecond_expr() -> None:
+    """MillisecondExpr serialization."""
+    from mongo_aggro.expressions import MillisecondExpr
+
+    expr = MillisecondExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$millisecond": "$createdAt"}
+
+
+def test_week_expr() -> None:
+    """WeekExpr serialization."""
+    from mongo_aggro.expressions import WeekExpr
+
+    expr = WeekExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$week": "$createdAt"}
+
+
+def test_iso_week_expr() -> None:
+    """IsoWeekExpr serialization."""
+    from mongo_aggro.expressions import IsoWeekExpr
+
+    expr = IsoWeekExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$isoWeek": "$createdAt"}
+
+
+def test_iso_week_year_expr() -> None:
+    """IsoWeekYearExpr serialization."""
+    from mongo_aggro.expressions import IsoWeekYearExpr
+
+    expr = IsoWeekYearExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$isoWeekYear": "$createdAt"}
+
+
+def test_iso_day_of_week_expr() -> None:
+    """IsoDayOfWeekExpr serialization."""
+    from mongo_aggro.expressions import IsoDayOfWeekExpr
+
+    expr = IsoDayOfWeekExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$isoDayOfWeek": "$createdAt"}
+
+
+def test_date_from_parts_expr() -> None:
+    """DateFromPartsExpr serialization."""
+    from mongo_aggro.expressions import DateFromPartsExpr
+
+    expr = DateFromPartsExpr(year=2024, month=1, day=15)
+    result = expr.model_dump()
+    assert result["$dateFromParts"]["year"] == 2024
+    assert result["$dateFromParts"]["month"] == 1
+    assert result["$dateFromParts"]["day"] == 15
+
+
+def test_date_from_parts_expr_iso() -> None:
+    """DateFromPartsExpr with ISO week date."""
+    from mongo_aggro.expressions import DateFromPartsExpr
+
+    expr = DateFromPartsExpr(
+        year=2024, iso_week_year=2024, iso_week=1, iso_day_of_week=1
+    )
+    result = expr.model_dump()
+    assert result["$dateFromParts"]["isoWeekYear"] == 2024
+    assert result["$dateFromParts"]["isoWeek"] == 1
+    assert result["$dateFromParts"]["isoDayOfWeek"] == 1
+
+
+def test_date_to_parts_expr() -> None:
+    """DateToPartsExpr serialization."""
+    from mongo_aggro.expressions import DateToPartsExpr
+
+    expr = DateToPartsExpr(date=F("createdAt"))
+    assert expr.model_dump() == {"$dateToParts": {"date": "$createdAt"}}
+
+
+def test_date_to_parts_expr_with_options() -> None:
+    """DateToPartsExpr with timezone and iso8601."""
+    from mongo_aggro.expressions import DateToPartsExpr
+
+    expr = DateToPartsExpr(date=F("createdAt"), timezone="UTC", iso8601=True)
+    result = expr.model_dump()
+    assert result["$dateToParts"]["timezone"] == "UTC"
+    assert result["$dateToParts"]["iso8601"] is True
+
+
+def test_date_trunc_expr() -> None:
+    """DateTruncExpr serialization."""
+    from mongo_aggro.expressions import DateTruncExpr
+
+    expr = DateTruncExpr(date=F("timestamp"), unit="day")
+    assert expr.model_dump() == {
+        "$dateTrunc": {"date": "$timestamp", "unit": "day"}
+    }
+
+
+def test_date_trunc_expr_with_options() -> None:
+    """DateTruncExpr with all options."""
+    from mongo_aggro.expressions import DateTruncExpr
+
+    expr = DateTruncExpr(
+        date=F("timestamp"),
+        unit="week",
+        bin_size=2,
+        timezone="UTC",
+        start_of_week="monday",
+    )
+    result = expr.model_dump()
+    assert result["$dateTrunc"]["binSize"] == 2
+    assert result["$dateTrunc"]["timezone"] == "UTC"
+    assert result["$dateTrunc"]["startOfWeek"] == "monday"

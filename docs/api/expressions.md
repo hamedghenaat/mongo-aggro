@@ -521,3 +521,196 @@ These expressions combine comparison expressions using `&`, `|`, and `~`.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Trigonometry Expressions
+
+::: mongo_aggro.SinExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.CosExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TanExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AsinExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AcosExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AtanExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.Atan2Expr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SinhExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.CoshExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.TanhExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AsinhExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AcoshExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.AtanhExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DegreesToRadiansExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RadiansToDegreesExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Bitwise Expressions
+
+::: mongo_aggro.BitAndExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitOrExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitXorExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitNotExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Data Size Expressions
+
+::: mongo_aggro.BsonSizeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BinarySizeExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Date Part Expressions
+
+::: mongo_aggro.YearExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MonthExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DayOfMonthExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DayOfWeekExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DayOfYearExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.HourExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MinuteExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SecondExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.MillisecondExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.WeekExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IsoWeekExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IsoWeekYearExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IsoDayOfWeekExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateFromPartsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateToPartsExpr
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.DateTruncExpr
+    options:
+      show_root_heading: true
+      heading_level: 3

@@ -2168,3 +2168,814 @@ class IsNumberExpr(ExpressionBase):
     def serialize(self) -> dict[str, Any]:
         """Serialize to MongoDB $isNumber expression."""
         return {"$isNumber": serialize_value(self.input)}
+
+
+# --- Trigonometry Expression Operators ---
+
+
+class SinExpr(ExpressionBase):
+    """
+    $sin expression operator - calculates sine.
+
+    Example:
+        >>> SinExpr(input=F("angle")).model_dump()
+        {"$sin": "$angle"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $sin expression."""
+        return {"$sin": serialize_value(self.input)}
+
+
+class CosExpr(ExpressionBase):
+    """
+    $cos expression operator - calculates cosine.
+
+    Example:
+        >>> CosExpr(input=F("angle")).model_dump()
+        {"$cos": "$angle"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $cos expression."""
+        return {"$cos": serialize_value(self.input)}
+
+
+class TanExpr(ExpressionBase):
+    """
+    $tan expression operator - calculates tangent.
+
+    Example:
+        >>> TanExpr(input=F("angle")).model_dump()
+        {"$tan": "$angle"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $tan expression."""
+        return {"$tan": serialize_value(self.input)}
+
+
+class AsinExpr(ExpressionBase):
+    """
+    $asin expression operator - calculates arc sine.
+
+    Example:
+        >>> AsinExpr(input=F("value")).model_dump()
+        {"$asin": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $asin expression."""
+        return {"$asin": serialize_value(self.input)}
+
+
+class AcosExpr(ExpressionBase):
+    """
+    $acos expression operator - calculates arc cosine.
+
+    Example:
+        >>> AcosExpr(input=F("value")).model_dump()
+        {"$acos": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $acos expression."""
+        return {"$acos": serialize_value(self.input)}
+
+
+class AtanExpr(ExpressionBase):
+    """
+    $atan expression operator - calculates arc tangent.
+
+    Example:
+        >>> AtanExpr(input=F("value")).model_dump()
+        {"$atan": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $atan expression."""
+        return {"$atan": serialize_value(self.input)}
+
+
+class Atan2Expr(ExpressionBase):
+    """
+    $atan2 expression operator - calculates arc tangent of y/x.
+
+    Example:
+        >>> Atan2Expr(y=F("y"), x=F("x")).model_dump()
+        {"$atan2": ["$y", "$x"]}
+    """
+
+    y: Any
+    x: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $atan2 expression."""
+        return {
+            "$atan2": [serialize_value(self.y), serialize_value(self.x)]
+        }
+
+
+class SinhExpr(ExpressionBase):
+    """
+    $sinh expression operator - calculates hyperbolic sine.
+
+    Example:
+        >>> SinhExpr(input=F("value")).model_dump()
+        {"$sinh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $sinh expression."""
+        return {"$sinh": serialize_value(self.input)}
+
+
+class CoshExpr(ExpressionBase):
+    """
+    $cosh expression operator - calculates hyperbolic cosine.
+
+    Example:
+        >>> CoshExpr(input=F("value")).model_dump()
+        {"$cosh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $cosh expression."""
+        return {"$cosh": serialize_value(self.input)}
+
+
+class TanhExpr(ExpressionBase):
+    """
+    $tanh expression operator - calculates hyperbolic tangent.
+
+    Example:
+        >>> TanhExpr(input=F("value")).model_dump()
+        {"$tanh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $tanh expression."""
+        return {"$tanh": serialize_value(self.input)}
+
+
+class AsinhExpr(ExpressionBase):
+    """
+    $asinh expression operator - calculates hyperbolic arc sine.
+
+    Example:
+        >>> AsinhExpr(input=F("value")).model_dump()
+        {"$asinh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $asinh expression."""
+        return {"$asinh": serialize_value(self.input)}
+
+
+class AcoshExpr(ExpressionBase):
+    """
+    $acosh expression operator - calculates hyperbolic arc cosine.
+
+    Example:
+        >>> AcoshExpr(input=F("value")).model_dump()
+        {"$acosh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $acosh expression."""
+        return {"$acosh": serialize_value(self.input)}
+
+
+class AtanhExpr(ExpressionBase):
+    """
+    $atanh expression operator - calculates hyperbolic arc tangent.
+
+    Example:
+        >>> AtanhExpr(input=F("value")).model_dump()
+        {"$atanh": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $atanh expression."""
+        return {"$atanh": serialize_value(self.input)}
+
+
+class DegreesToRadiansExpr(ExpressionBase):
+    """
+    $degreesToRadians expression operator - converts degrees to radians.
+
+    Example:
+        >>> DegreesToRadiansExpr(input=F("degrees")).model_dump()
+        {"$degreesToRadians": "$degrees"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $degreesToRadians expression."""
+        return {"$degreesToRadians": serialize_value(self.input)}
+
+
+class RadiansToDegreesExpr(ExpressionBase):
+    """
+    $radiansToDegrees expression operator - converts radians to degrees.
+
+    Example:
+        >>> RadiansToDegreesExpr(input=F("radians")).model_dump()
+        {"$radiansToDegrees": "$radians"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $radiansToDegrees expression."""
+        return {"$radiansToDegrees": serialize_value(self.input)}
+
+
+# --- Bitwise Expression Operators ---
+
+
+class BitAndExpr(ExpressionBase):
+    """
+    $bitAnd expression operator - bitwise AND.
+
+    Example:
+        >>> BitAndExpr(operands=[F("a"), F("b")]).model_dump()
+        {"$bitAnd": ["$a", "$b"]}
+    """
+
+    operands: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $bitAnd expression."""
+        return {"$bitAnd": [serialize_value(o) for o in self.operands]}
+
+
+class BitOrExpr(ExpressionBase):
+    """
+    $bitOr expression operator - bitwise OR.
+
+    Example:
+        >>> BitOrExpr(operands=[F("a"), F("b")]).model_dump()
+        {"$bitOr": ["$a", "$b"]}
+    """
+
+    operands: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $bitOr expression."""
+        return {"$bitOr": [serialize_value(o) for o in self.operands]}
+
+
+class BitXorExpr(ExpressionBase):
+    """
+    $bitXor expression operator - bitwise XOR.
+
+    Example:
+        >>> BitXorExpr(operands=[F("a"), F("b")]).model_dump()
+        {"$bitXor": ["$a", "$b"]}
+    """
+
+    operands: list[Any]
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $bitXor expression."""
+        return {"$bitXor": [serialize_value(o) for o in self.operands]}
+
+
+class BitNotExpr(ExpressionBase):
+    """
+    $bitNot expression operator - bitwise NOT.
+
+    Example:
+        >>> BitNotExpr(input=F("value")).model_dump()
+        {"$bitNot": "$value"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $bitNot expression."""
+        return {"$bitNot": serialize_value(self.input)}
+
+
+# --- Data Size Operators ---
+
+
+class BsonSizeExpr(ExpressionBase):
+    """
+    $bsonSize expression operator - returns size of document in bytes.
+
+    Example:
+        >>> BsonSizeExpr(input=F("doc")).model_dump()
+        {"$bsonSize": "$doc"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $bsonSize expression."""
+        return {"$bsonSize": serialize_value(self.input)}
+
+
+class BinarySizeExpr(ExpressionBase):
+    """
+    $binarySize expression operator - returns size of string/binary in bytes.
+
+    Example:
+        >>> BinarySizeExpr(input=F("data")).model_dump()
+        {"$binarySize": "$data"}
+    """
+
+    input: Any
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $binarySize expression."""
+        return {"$binarySize": serialize_value(self.input)}
+
+
+# --- Date Part Extraction Operators ---
+
+
+class YearExpr(ExpressionBase):
+    """
+    $year expression operator - extracts year from date.
+
+    Example:
+        >>> YearExpr(date=F("createdAt")).model_dump()
+        {"$year": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $year expression."""
+        if self.timezone is None:
+            return {"$year": serialize_value(self.date)}
+        return {
+            "$year": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class MonthExpr(ExpressionBase):
+    """
+    $month expression operator - extracts month (1-12) from date.
+
+    Example:
+        >>> MonthExpr(date=F("createdAt")).model_dump()
+        {"$month": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $month expression."""
+        if self.timezone is None:
+            return {"$month": serialize_value(self.date)}
+        return {
+            "$month": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class DayOfMonthExpr(ExpressionBase):
+    """
+    $dayOfMonth expression operator - extracts day of month (1-31).
+
+    Example:
+        >>> DayOfMonthExpr(date=F("createdAt")).model_dump()
+        {"$dayOfMonth": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dayOfMonth expression."""
+        if self.timezone is None:
+            return {"$dayOfMonth": serialize_value(self.date)}
+        return {
+            "$dayOfMonth": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class DayOfWeekExpr(ExpressionBase):
+    """
+    $dayOfWeek expression operator - extracts day of week (1=Sun, 7=Sat).
+
+    Example:
+        >>> DayOfWeekExpr(date=F("createdAt")).model_dump()
+        {"$dayOfWeek": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dayOfWeek expression."""
+        if self.timezone is None:
+            return {"$dayOfWeek": serialize_value(self.date)}
+        return {
+            "$dayOfWeek": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class DayOfYearExpr(ExpressionBase):
+    """
+    $dayOfYear expression operator - extracts day of year (1-366).
+
+    Example:
+        >>> DayOfYearExpr(date=F("createdAt")).model_dump()
+        {"$dayOfYear": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dayOfYear expression."""
+        if self.timezone is None:
+            return {"$dayOfYear": serialize_value(self.date)}
+        return {
+            "$dayOfYear": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class HourExpr(ExpressionBase):
+    """
+    $hour expression operator - extracts hour (0-23) from date.
+
+    Example:
+        >>> HourExpr(date=F("createdAt")).model_dump()
+        {"$hour": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $hour expression."""
+        if self.timezone is None:
+            return {"$hour": serialize_value(self.date)}
+        return {
+            "$hour": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class MinuteExpr(ExpressionBase):
+    """
+    $minute expression operator - extracts minute (0-59) from date.
+
+    Example:
+        >>> MinuteExpr(date=F("createdAt")).model_dump()
+        {"$minute": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $minute expression."""
+        if self.timezone is None:
+            return {"$minute": serialize_value(self.date)}
+        return {
+            "$minute": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class SecondExpr(ExpressionBase):
+    """
+    $second expression operator - extracts second (0-60) from date.
+
+    Example:
+        >>> SecondExpr(date=F("createdAt")).model_dump()
+        {"$second": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $second expression."""
+        if self.timezone is None:
+            return {"$second": serialize_value(self.date)}
+        return {
+            "$second": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class MillisecondExpr(ExpressionBase):
+    """
+    $millisecond expression operator - extracts milliseconds (0-999).
+
+    Example:
+        >>> MillisecondExpr(date=F("createdAt")).model_dump()
+        {"$millisecond": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $millisecond expression."""
+        if self.timezone is None:
+            return {"$millisecond": serialize_value(self.date)}
+        return {
+            "$millisecond": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class WeekExpr(ExpressionBase):
+    """
+    $week expression operator - extracts week number (0-53).
+
+    Example:
+        >>> WeekExpr(date=F("createdAt")).model_dump()
+        {"$week": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $week expression."""
+        if self.timezone is None:
+            return {"$week": serialize_value(self.date)}
+        return {
+            "$week": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class IsoWeekExpr(ExpressionBase):
+    """
+    $isoWeek expression operator - extracts ISO week number (1-53).
+
+    Example:
+        >>> IsoWeekExpr(date=F("createdAt")).model_dump()
+        {"$isoWeek": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $isoWeek expression."""
+        if self.timezone is None:
+            return {"$isoWeek": serialize_value(self.date)}
+        return {
+            "$isoWeek": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class IsoWeekYearExpr(ExpressionBase):
+    """
+    $isoWeekYear expression operator - extracts ISO week year.
+
+    Example:
+        >>> IsoWeekYearExpr(date=F("createdAt")).model_dump()
+        {"$isoWeekYear": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $isoWeekYear expression."""
+        if self.timezone is None:
+            return {"$isoWeekYear": serialize_value(self.date)}
+        return {
+            "$isoWeekYear": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class IsoDayOfWeekExpr(ExpressionBase):
+    """
+    $isoDayOfWeek expression operator - extracts ISO day of week (1=Mon, 7=Sun).
+
+    Example:
+        >>> IsoDayOfWeekExpr(date=F("createdAt")).model_dump()
+        {"$isoDayOfWeek": "$createdAt"}
+    """
+
+    date: Any
+    timezone: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $isoDayOfWeek expression."""
+        if self.timezone is None:
+            return {"$isoDayOfWeek": serialize_value(self.date)}
+        return {
+            "$isoDayOfWeek": {
+                "date": serialize_value(self.date),
+                "timezone": self.timezone,
+            }
+        }
+
+
+class DateFromPartsExpr(ExpressionBase):
+    """
+    $dateFromParts expression operator - constructs date from parts.
+
+    Example:
+        >>> DateFromPartsExpr(year=2024, month=1, day=15).model_dump()
+        {"$dateFromParts": {"year": 2024, "month": 1, "day": 15}}
+    """
+
+    year: Any
+    month: Any | None = None
+    day: Any | None = None
+    hour: Any | None = None
+    minute: Any | None = None
+    second: Any | None = None
+    millisecond: Any | None = None
+    timezone: str | None = None
+    # ISO week date fields
+    iso_week_year: Any | None = None
+    iso_week: Any | None = None
+    iso_day_of_week: Any | None = None
+
+    def _add_date_parts(self, result: dict[str, Any]) -> None:
+        """Add date part fields to result dict."""
+        if self.iso_week_year is not None:
+            result["isoWeekYear"] = serialize_value(self.iso_week_year)
+            if self.iso_week is not None:
+                result["isoWeek"] = serialize_value(self.iso_week)
+            if self.iso_day_of_week is not None:
+                result["isoDayOfWeek"] = serialize_value(self.iso_day_of_week)
+        else:
+            result["year"] = serialize_value(self.year)
+            if self.month is not None:
+                result["month"] = serialize_value(self.month)
+            if self.day is not None:
+                result["day"] = serialize_value(self.day)
+
+    def _add_time_parts(self, result: dict[str, Any]) -> None:
+        """Add time part fields to result dict."""
+        if self.hour is not None:
+            result["hour"] = serialize_value(self.hour)
+        if self.minute is not None:
+            result["minute"] = serialize_value(self.minute)
+        if self.second is not None:
+            result["second"] = serialize_value(self.second)
+        if self.millisecond is not None:
+            result["millisecond"] = serialize_value(self.millisecond)
+        if self.timezone is not None:
+            result["timezone"] = self.timezone
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateFromParts expression."""
+        result: dict[str, Any] = {}
+        self._add_date_parts(result)
+        self._add_time_parts(result)
+        return {"$dateFromParts": result}
+
+
+class DateToPartsExpr(ExpressionBase):
+    """
+    $dateToParts expression operator - extracts all date parts.
+
+    Example:
+        >>> DateToPartsExpr(date=F("createdAt")).model_dump()
+        {"$dateToParts": {"date": "$createdAt"}}
+    """
+
+    date: Any
+    timezone: str | None = None
+    iso8601: bool | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateToParts expression."""
+        result: dict[str, Any] = {"date": serialize_value(self.date)}
+        if self.timezone is not None:
+            result["timezone"] = self.timezone
+        if self.iso8601 is not None:
+            result["iso8601"] = self.iso8601
+        return {"$dateToParts": result}
+
+
+class DateTruncExpr(ExpressionBase):
+    """
+    $dateTrunc expression operator - truncates date to specified unit.
+
+    Example:
+        >>> DateTruncExpr(date=F("timestamp"), unit="day").model_dump()
+        {"$dateTrunc": {"date": "$timestamp", "unit": "day"}}
+    """
+
+    date: Any
+    unit: str
+    bin_size: int | None = None
+    timezone: str | None = None
+    start_of_week: str | None = None
+
+    @model_serializer
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to MongoDB $dateTrunc expression."""
+        result: dict[str, Any] = {
+            "date": serialize_value(self.date),
+            "unit": self.unit,
+        }
+        if self.bin_size is not None:
+            result["binSize"] = self.bin_size
+        if self.timezone is not None:
+            result["timezone"] = self.timezone
+        if self.start_of_week is not None:
+            result["startOfWeek"] = self.start_of_week
+        return {"$dateTrunc": result}

@@ -1064,6 +1064,250 @@ pipeline = Pipeline([
 
 ---
 
+## Trigonometry Expressions
+
+For geometric calculations and angle conversions.
+
+### Basic Trigonometry
+
+```python
+from mongo_aggro import (
+    F, SinExpr, CosExpr, TanExpr, DegreesToRadiansExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Convert degrees to radians first
+        "angleRad": DegreesToRadiansExpr(input=F("angleDeg")).model_dump(),
+        
+        # Trig functions (input in radians)
+        "sine": SinExpr(input=F("angle")).model_dump(),
+        "cosine": CosExpr(input=F("angle")).model_dump(),
+        "tangent": TanExpr(input=F("angle")).model_dump(),
+    })
+])
+```
+
+### Inverse and Hyperbolic Functions
+
+```python
+from mongo_aggro import (
+    F, AsinExpr, AcosExpr, AtanExpr, Atan2Expr,
+    SinhExpr, CoshExpr, TanhExpr, RadiansToDegreesExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Inverse trig (returns radians)
+        "arcSine": AsinExpr(input=F("ratio")).model_dump(),
+        "arcCosine": AcosExpr(input=F("ratio")).model_dump(),
+        "arcTangent": AtanExpr(input=F("ratio")).model_dump(),
+        
+        # Two-argument arctangent for proper quadrant
+        "angle": Atan2Expr(y=F("y"), x=F("x")).model_dump(),
+        
+        # Hyperbolic functions
+        "sinhVal": SinhExpr(input=F("value")).model_dump(),
+        "coshVal": CoshExpr(input=F("value")).model_dump(),
+        "tanhVal": TanhExpr(input=F("value")).model_dump(),
+        
+        # Convert radians back to degrees
+        "angleDeg": RadiansToDegreesExpr(input=F("angleRad")).model_dump(),
+    })
+])
+```
+
+---
+
+## Bitwise Expressions
+
+For low-level bit manipulation.
+
+```python
+from mongo_aggro import (
+    F, BitAndExpr, BitOrExpr, BitXorExpr, BitNotExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # Bitwise AND (check if flag is set)
+        "hasFlag": BitAndExpr(operands=[F("flags"), 0x04]).model_dump(),
+        
+        # Bitwise OR (set flags)
+        "withFlag": BitOrExpr(operands=[F("flags"), 0x02]).model_dump(),
+        
+        # Bitwise XOR (toggle flag)
+        "toggled": BitXorExpr(operands=[F("flags"), 0x01]).model_dump(),
+        
+        # Bitwise NOT (invert all bits)
+        "inverted": BitNotExpr(input=F("value")).model_dump(),
+    })
+])
+```
+
+---
+
+## Data Size Expressions
+
+Get the size of documents and binary data.
+
+```python
+from mongo_aggro import F, BsonSizeExpr, BinarySizeExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Size of embedded document in bytes
+        "docSize": BsonSizeExpr(input=F("metadata")).model_dump(),
+        
+        # Size of entire document
+        "totalSize": BsonSizeExpr(input="$$ROOT").model_dump(),
+        
+        # Size of string/binary data
+        "dataSize": BinarySizeExpr(input=F("content")).model_dump(),
+    })
+])
+```
+
+---
+
+## Date Part Expressions
+
+Extract individual components from dates.
+
+### Basic Date Parts
+
+```python
+from mongo_aggro import (
+    F, YearExpr, MonthExpr, DayOfMonthExpr, DayOfWeekExpr,
+    HourExpr, MinuteExpr, SecondExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        "year": YearExpr(date=F("createdAt")).model_dump(),
+        "month": MonthExpr(date=F("createdAt")).model_dump(),
+        "day": DayOfMonthExpr(date=F("createdAt")).model_dump(),
+        "dayOfWeek": DayOfWeekExpr(date=F("createdAt")).model_dump(),
+        "hour": HourExpr(date=F("createdAt")).model_dump(),
+        "minute": MinuteExpr(date=F("createdAt")).model_dump(),
+        "second": SecondExpr(date=F("createdAt")).model_dump(),
+    })
+])
+
+# With timezone
+pipeline = Pipeline([
+    Project(fields={
+        "localHour": HourExpr(
+            date=F("createdAt"),
+            timezone="America/New_York"
+        ).model_dump(),
+    })
+])
+```
+
+### ISO Week Date Parts
+
+```python
+from mongo_aggro import (
+    F, IsoWeekExpr, IsoWeekYearExpr, IsoDayOfWeekExpr, WeekExpr, Project
+)
+
+pipeline = Pipeline([
+    Project(fields={
+        # ISO week number (1-53)
+        "isoWeek": IsoWeekExpr(date=F("date")).model_dump(),
+        
+        # ISO week-numbering year
+        "isoYear": IsoWeekYearExpr(date=F("date")).model_dump(),
+        
+        # ISO day of week (1=Monday, 7=Sunday)
+        "isoDayOfWeek": IsoDayOfWeekExpr(date=F("date")).model_dump(),
+        
+        # Standard week (0-53, Sunday start)
+        "week": WeekExpr(date=F("date")).model_dump(),
+    })
+])
+```
+
+### DateFromPartsExpr - Construct Dates
+
+```python
+from mongo_aggro import F, DateFromPartsExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Construct date from parts
+        "date": DateFromPartsExpr(
+            year=F("year"),
+            month=F("month"),
+            day=F("day")
+        ).model_dump(),
+        
+        # With time components
+        "timestamp": DateFromPartsExpr(
+            year=2024,
+            month=6,
+            day=15,
+            hour=14,
+            minute=30,
+            second=0,
+            timezone="UTC"
+        ).model_dump(),
+    })
+])
+```
+
+### DateToPartsExpr - Decompose Dates
+
+```python
+from mongo_aggro import F, DateToPartsExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Extract all date parts at once
+        "parts": DateToPartsExpr(date=F("timestamp")).model_dump(),
+        
+        # With ISO format
+        "isoParts": DateToPartsExpr(
+            date=F("timestamp"),
+            iso8601=True
+        ).model_dump(),
+    })
+])
+```
+
+### DateTruncExpr - Truncate Dates
+
+```python
+from mongo_aggro import F, DateTruncExpr, Project
+
+pipeline = Pipeline([
+    Project(fields={
+        # Truncate to start of day
+        "startOfDay": DateTruncExpr(
+            date=F("timestamp"),
+            unit="day"
+        ).model_dump(),
+        
+        # Truncate to start of week (Monday)
+        "startOfWeek": DateTruncExpr(
+            date=F("timestamp"),
+            unit="week",
+            start_of_week="monday"
+        ).model_dump(),
+        
+        # Truncate to 15-minute intervals
+        "quarter": DateTruncExpr(
+            date=F("timestamp"),
+            unit="minute",
+            bin_size=15
+        ).model_dump(),
+    })
+])
+```
+
+---
+
 ## Real-World Examples
 
 ### E-commerce Order Processing
