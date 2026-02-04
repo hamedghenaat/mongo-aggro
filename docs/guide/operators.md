@@ -1924,3 +1924,180 @@ Match(query={
     "name": name_filter,
 })
 ```
+
+## Bitwise Query Operators
+
+Match documents based on bit positions in numeric fields.
+
+### BitsAllClear / BitsAllSet
+
+Check if all specified bits are 0 or 1.
+
+```python
+from mongo_aggro import BitsAllClear, BitsAllSet, Match
+
+# Using bitmask: match where bits 0, 1, and 5 are all 0
+Match(query={"flags": BitsAllClear(mask=35).model_dump()})
+# {"$match": {"flags": {"$bitsAllClear": 35}}}
+
+# Using bit positions array
+Match(query={"flags": BitsAllClear(mask=[0, 1, 5]).model_dump()})
+# {"$match": {"flags": {"$bitsAllClear": [0, 1, 5]}}}
+
+# Match where all bits are set
+Match(query={"permissions": BitsAllSet(mask=7).model_dump()})
+# {"$match": {"permissions": {"$bitsAllSet": 7}}}
+```
+
+### BitsAnyClear / BitsAnySet
+
+Check if any of the specified bits are 0 or 1.
+
+```python
+from mongo_aggro import BitsAnyClear, BitsAnySet, Match
+
+# Match if any of bits 1 or 5 is clear
+Match(query={"flags": BitsAnyClear(mask=[1, 5]).model_dump()})
+
+# Match if any of bits in mask are set
+Match(query={"flags": BitsAnySet(mask=35).model_dump()})
+```
+
+## Geospatial Query Operators
+
+Query documents by geographic location.
+
+### GeoIntersects
+
+Match geometries that intersect with a GeoJSON geometry.
+
+```python
+from mongo_aggro import GeoIntersects, Match
+
+Match(query={
+    "location": GeoIntersects(
+        geometry={
+            "type": "Polygon",
+            "coordinates": [[
+                [-100, 60], [-100, 0], [100, 0], [100, 60], [-100, 60]
+            ]]
+        }
+    ).model_dump()
+})
+```
+
+### GeoWithin
+
+Match geometries within a bounding region.
+
+```python
+from mongo_aggro import GeoWithin, Match
+
+# Using GeoJSON polygon
+Match(query={
+    "location": GeoWithin(
+        geometry={
+            "type": "Polygon",
+            "coordinates": [[
+                [-100, 60], [-100, 0], [100, 0], [100, 60], [-100, 60]
+            ]]
+        }
+    ).model_dump()
+})
+
+# Using legacy box format
+Match(query={
+    "location": GeoWithin(
+        box=[[-100, -100], [100, 100]]
+    ).model_dump()
+})
+```
+
+### Near / NearSphere
+
+Find documents near a geographic point.
+
+```python
+from mongo_aggro import Near, NearSphere, Match
+
+# Find within 5km of a point (requires geospatial index)
+Match(query={
+    "location": Near(
+        geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        max_distance=5000,
+        min_distance=1000
+    ).model_dump()
+})
+
+# Spherical calculation
+Match(query={
+    "location": NearSphere(
+        geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        max_distance=5000
+    ).model_dump()
+})
+```
+
+## Miscellaneous Query Operators
+
+### Mod
+
+Match where field value % divisor == remainder.
+
+```python
+from mongo_aggro import Mod, Match
+
+# Find documents where quantity is even
+Match(query={"quantity": Mod(divisor=2, remainder=0).model_dump()})
+# {"$match": {"quantity": {"$mod": [2, 0]}}}
+```
+
+### JsonSchema
+
+Validate documents against a JSON Schema.
+
+```python
+from mongo_aggro import JsonSchema, Match
+
+Match(query=JsonSchema(json_schema={
+    "bsonType": "object",
+    "required": ["name", "email"],
+    "properties": {
+        "name": {"bsonType": "string", "minLength": 1},
+        "email": {"bsonType": "string", "pattern": "^.+@.+$"}
+    }
+}).model_dump())
+```
+
+### Where
+
+Match using JavaScript expression (slow, avoid when possible).
+
+```python
+from mongo_aggro import Where, Match
+
+Match(query=Where(
+    expression="this.credits == this.debits"
+).model_dump())
+# {"$match": {"$where": "this.credits == this.debits"}}
+```
+
+### Text
+
+Perform text search on text-indexed fields.
+
+```python
+from mongo_aggro import Text, Match
+
+# Simple text search
+Match(query=Text(search="coffee shop").model_dump())
+# {"$match": {"$text": {"$search": "coffee shop"}}}
+
+# With language and case sensitivity
+Match(query=Text(
+    search="café",
+    language="fr",
+    case_sensitive=True,
+    diacritic_sensitive=True
+).model_dump())
+```

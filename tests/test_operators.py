@@ -267,3 +267,203 @@ def test_all() -> None:
     """$all operator."""
     op = All(values=["red", "green", "blue"])
     assert op.model_dump() == {"$all": ["red", "green", "blue"]}
+
+
+# --- Bitwise Query Operator Tests ---
+
+
+def test_bits_all_clear_mask() -> None:
+    """$bitsAllClear with bitmask."""
+    from mongo_aggro import BitsAllClear
+
+    op = BitsAllClear(mask=35)
+    assert op.model_dump() == {"$bitsAllClear": 35}
+
+
+def test_bits_all_clear_positions() -> None:
+    """$bitsAllClear with bit positions."""
+    from mongo_aggro import BitsAllClear
+
+    op = BitsAllClear(mask=[1, 5])
+    assert op.model_dump() == {"$bitsAllClear": [1, 5]}
+
+
+def test_bits_all_set() -> None:
+    """$bitsAllSet operator."""
+    from mongo_aggro import BitsAllSet
+
+    op = BitsAllSet(mask=35)
+    assert op.model_dump() == {"$bitsAllSet": 35}
+
+
+def test_bits_any_clear() -> None:
+    """$bitsAnyClear operator."""
+    from mongo_aggro import BitsAnyClear
+
+    op = BitsAnyClear(mask=[1, 5])
+    assert op.model_dump() == {"$bitsAnyClear": [1, 5]}
+
+
+def test_bits_any_set() -> None:
+    """$bitsAnySet operator."""
+    from mongo_aggro import BitsAnySet
+
+    op = BitsAnySet(mask=35)
+    assert op.model_dump() == {"$bitsAnySet": 35}
+
+
+# --- Geospatial Query Operator Tests ---
+
+
+def test_geo_intersects() -> None:
+    """$geoIntersects operator."""
+    from mongo_aggro import GeoIntersects
+
+    op = GeoIntersects(
+        geometry={
+            "type": "Polygon",
+            "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]],
+        }
+    )
+    assert op.model_dump() == {
+        "$geoIntersects": {
+            "$geometry": {
+                "type": "Polygon",
+                "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]],
+            }
+        }
+    }
+
+
+def test_geo_within_geometry() -> None:
+    """$geoWithin with GeoJSON geometry."""
+    from mongo_aggro import GeoWithin
+
+    op = GeoWithin(
+        geometry={
+            "type": "Polygon",
+            "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]],
+        }
+    )
+    assert op.model_dump() == {
+        "$geoWithin": {
+            "$geometry": {
+                "type": "Polygon",
+                "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]],
+            }
+        }
+    }
+
+
+def test_geo_within_box() -> None:
+    """$geoWithin with legacy box."""
+    from mongo_aggro import GeoWithin
+
+    op = GeoWithin(box=[[-100, -100], [100, 100]])
+    assert op.model_dump() == {
+        "$geoWithin": {"$box": [[-100, -100], [100, 100]]}
+    }
+
+
+def test_near_geometry() -> None:
+    """$near with GeoJSON point."""
+    from mongo_aggro import Near
+
+    op = Near(
+        geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        max_distance=5000,
+        min_distance=1000,
+    )
+    assert op.model_dump() == {
+        "$near": {
+            "$geometry": {"type": "Point", "coordinates": [-73.9667, 40.78]},
+            "$maxDistance": 5000,
+            "$minDistance": 1000,
+        }
+    }
+
+
+def test_near_legacy() -> None:
+    """$near with legacy coordinates."""
+    from mongo_aggro import Near
+
+    op = Near(legacy_point=[-73.9667, 40.78], max_distance=5000)
+    result = op.model_dump()
+    assert result["$near"] == [-73.9667, 40.78]
+    assert result["$maxDistance"] == 5000
+
+
+def test_near_sphere() -> None:
+    """$nearSphere operator."""
+    from mongo_aggro import NearSphere
+
+    op = NearSphere(
+        geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        max_distance=5000,
+    )
+    assert op.model_dump() == {
+        "$nearSphere": {
+            "$geometry": {"type": "Point", "coordinates": [-73.9667, 40.78]},
+            "$maxDistance": 5000,
+        }
+    }
+
+
+# --- Miscellaneous Query Operator Tests ---
+
+
+def test_mod() -> None:
+    """$mod operator."""
+    from mongo_aggro import Mod
+
+    op = Mod(divisor=4, remainder=0)
+    assert op.model_dump() == {"$mod": [4, 0]}
+
+
+def test_json_schema() -> None:
+    """$jsonSchema operator."""
+    from mongo_aggro import JsonSchema
+
+    op = JsonSchema(
+        json_schema={
+            "bsonType": "object",
+            "required": ["name", "email"],
+            "properties": {
+                "name": {"bsonType": "string"},
+                "email": {"bsonType": "string"},
+            },
+        }
+    )
+    result = op.model_dump()
+    assert "$jsonSchema" in result
+    assert result["$jsonSchema"]["required"] == ["name", "email"]
+
+
+def test_where() -> None:
+    """$where operator."""
+    from mongo_aggro import Where
+
+    op = Where(expression="this.credits == this.debits")
+    assert op.model_dump() == {"$where": "this.credits == this.debits"}
+
+
+def test_text_simple() -> None:
+    """$text operator simple."""
+    from mongo_aggro import Text
+
+    op = Text(search="coffee shop")
+    assert op.model_dump() == {"$text": {"$search": "coffee shop"}}
+
+
+def test_text_with_options() -> None:
+    """$text operator with options."""
+    from mongo_aggro import Text
+
+    op = Text(search="coffee", language="en", case_sensitive=True)
+    assert op.model_dump() == {
+        "$text": {
+            "$search": "coffee",
+            "$language": "en",
+            "$caseSensitive": True,
+        }
+    }

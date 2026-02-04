@@ -1,6 +1,6 @@
 [project]
 name = "mongo-aggro"
-version = "0.1.9"
+version = "0.1.10"
 description = "MongoDB Aggregation Pipeline Builder with Pydantic"
 readme = "README.md"
 license = "MIT"

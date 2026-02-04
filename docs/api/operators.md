@@ -108,3 +108,69 @@ This page documents all query operator classes.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Bitwise Operators
+
+::: mongo_aggro.BitsAllClear
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitsAllSet
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitsAnyClear
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.BitsAnySet
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Geospatial Operators
+
+::: mongo_aggro.GeoIntersects
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.GeoWithin
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.Near
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.NearSphere
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Miscellaneous Operators
+
+::: mongo_aggro.Mod
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.JsonSchema
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.Where
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.Text
+    options:
+      show_root_heading: true
+      heading_level: 3

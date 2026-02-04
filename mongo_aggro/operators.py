@@ -254,3 +254,336 @@ class All(QueryOperator):
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
         return {"$all": self.values}
+
+
+# --- Bitwise Query Operators ---
+
+
+class BitsAllClear(QueryOperator):
+    """
+    $bitsAllClear operator - matches where all bit positions are 0.
+
+    Example:
+        >>> BitsAllClear(mask=35).model_dump()
+        {"$bitsAllClear": 35}
+
+        >>> BitsAllClear(mask=[1, 5]).model_dump()
+        {"$bitsAllClear": [1, 5]}
+    """
+
+    mask: int | list[int] = Field(
+        ..., description="Bitmask or array of bit positions"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$bitsAllClear": self.mask}
+
+
+class BitsAllSet(QueryOperator):
+    """
+    $bitsAllSet operator - matches where all bit positions are 1.
+
+    Example:
+        >>> BitsAllSet(mask=35).model_dump()
+        {"$bitsAllSet": 35}
+    """
+
+    mask: int | list[int] = Field(
+        ..., description="Bitmask or array of bit positions"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$bitsAllSet": self.mask}
+
+
+class BitsAnyClear(QueryOperator):
+    """
+    $bitsAnyClear operator - matches where any bit position is 0.
+
+    Example:
+        >>> BitsAnyClear(mask=35).model_dump()
+        {"$bitsAnyClear": 35}
+    """
+
+    mask: int | list[int] = Field(
+        ..., description="Bitmask or array of bit positions"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$bitsAnyClear": self.mask}
+
+
+class BitsAnySet(QueryOperator):
+    """
+    $bitsAnySet operator - matches where any bit position is 1.
+
+    Example:
+        >>> BitsAnySet(mask=35).model_dump()
+        {"$bitsAnySet": 35}
+    """
+
+    mask: int | list[int] = Field(
+        ..., description="Bitmask or array of bit positions"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$bitsAnySet": self.mask}
+
+
+# --- Geospatial Query Operators ---
+
+
+class GeoIntersects(QueryOperator):
+    """
+    $geoIntersects operator - matches geometries that intersect.
+
+    Example:
+        >>> GeoIntersects(geometry={
+        ...     "type": "Polygon",
+        ...     "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]]
+        ... }).model_dump()
+        {"$geoIntersects": {"$geometry": {...}}}
+    """
+
+    geometry: dict[str, Any] = Field(
+        ..., description="GeoJSON geometry object"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$geoIntersects": {"$geometry": self.geometry}}
+
+
+class GeoWithin(QueryOperator):
+    """
+    $geoWithin operator - matches geometries within a bounding region.
+
+    Example:
+        >>> GeoWithin(geometry={
+        ...     "type": "Polygon",
+        ...     "coordinates": [[[-100, 60], [-100, 0], [100, 0], [100, 60]]]
+        ... }).model_dump()
+        {"$geoWithin": {"$geometry": {...}}}
+
+        >>> # Using legacy shapes
+        >>> GeoWithin(box=[[-100, -100], [100, 100]]).model_dump()
+        {"$geoWithin": {"$box": [[-100, -100], [100, 100]]}}
+    """
+
+    geometry: dict[str, Any] | None = Field(
+        default=None, description="GeoJSON geometry object"
+    )
+    box: list[list[float]] | None = Field(
+        default=None, description="Legacy box coordinates [[x1,y1], [x2,y2]]"
+    )
+    polygon: list[list[float]] | None = Field(
+        default=None, description="Legacy polygon coordinates"
+    )
+    center: list[Any] | None = Field(
+        default=None, description="Legacy center coordinates [[x,y], radius]"
+    )
+    center_sphere: list[Any] | None = Field(
+        default=None,
+        serialization_alias="centerSphere",
+        description="Center sphere [[x,y], radius]",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.geometry is not None:
+            result["$geometry"] = self.geometry
+        if self.box is not None:
+            result["$box"] = self.box
+        if self.polygon is not None:
+            result["$polygon"] = self.polygon
+        if self.center is not None:
+            result["$center"] = self.center
+        if self.center_sphere is not None:
+            result["$centerSphere"] = self.center_sphere
+        return {"$geoWithin": result}
+
+
+class Near(QueryOperator):
+    """
+    $near operator - matches geospatial objects near a point.
+
+    Example:
+        >>> Near(
+        ...     geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        ...     max_distance=5000,
+        ...     min_distance=1000
+        ... ).model_dump()
+        {"$near": {"$geometry": {...}, "$maxDistance": 5000, "$minDistance": 1000}}
+    """
+
+    geometry: dict[str, Any] | None = Field(
+        default=None, description="GeoJSON point"
+    )
+    max_distance: float | None = Field(
+        default=None,
+        serialization_alias="$maxDistance",
+        description="Maximum distance in meters",
+    )
+    min_distance: float | None = Field(
+        default=None,
+        serialization_alias="$minDistance",
+        description="Minimum distance in meters",
+    )
+    # Legacy 2d index format
+    legacy_point: list[float] | None = Field(
+        default=None, description="Legacy [x, y] coordinates"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        if self.legacy_point is not None:
+            result: dict[str, Any] = {"$near": self.legacy_point}
+            if self.max_distance is not None:
+                result["$maxDistance"] = self.max_distance
+            return result
+        result = {}
+        if self.geometry is not None:
+            result["$geometry"] = self.geometry
+        if self.max_distance is not None:
+            result["$maxDistance"] = self.max_distance
+        if self.min_distance is not None:
+            result["$minDistance"] = self.min_distance
+        return {"$near": result}
+
+
+class NearSphere(QueryOperator):
+    """
+    $nearSphere operator - matches geospatial objects near a point on sphere.
+
+    Example:
+        >>> NearSphere(
+        ...     geometry={"type": "Point", "coordinates": [-73.9667, 40.78]},
+        ...     max_distance=5000
+        ... ).model_dump()
+        {"$nearSphere": {"$geometry": {...}, "$maxDistance": 5000}}
+    """
+
+    geometry: dict[str, Any] | None = Field(
+        default=None, description="GeoJSON point"
+    )
+    max_distance: float | None = Field(
+        default=None,
+        serialization_alias="$maxDistance",
+        description="Maximum distance in meters",
+    )
+    min_distance: float | None = Field(
+        default=None,
+        serialization_alias="$minDistance",
+        description="Minimum distance in meters",
+    )
+    legacy_point: list[float] | None = Field(
+        default=None, description="Legacy [x, y] coordinates"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        if self.legacy_point is not None:
+            result: dict[str, Any] = {"$nearSphere": self.legacy_point}
+            if self.max_distance is not None:
+                result["$maxDistance"] = self.max_distance
+            return result
+        result = {}
+        if self.geometry is not None:
+            result["$geometry"] = self.geometry
+        if self.max_distance is not None:
+            result["$maxDistance"] = self.max_distance
+        if self.min_distance is not None:
+            result["$minDistance"] = self.min_distance
+        return {"$nearSphere": result}
+
+
+# --- Miscellaneous Query Operators ---
+
+
+class Mod(QueryOperator):
+    """
+    $mod operator - matches where field % divisor == remainder.
+
+    Example:
+        >>> Mod(divisor=4, remainder=0).model_dump()
+        {"$mod": [4, 0]}
+    """
+
+    divisor: int = Field(..., description="The divisor value")
+    remainder: int = Field(..., description="The remainder value")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$mod": [self.divisor, self.remainder]}
+
+
+class JsonSchema(QueryOperator):
+    """
+    $jsonSchema operator - validates documents against JSON Schema.
+
+    Example:
+        >>> JsonSchema(json_schema={
+        ...     "bsonType": "object",
+        ...     "required": ["name", "email"],
+        ...     "properties": {
+        ...         "name": {"bsonType": "string"},
+        ...         "email": {"bsonType": "string"}
+        ...     }
+        ... }).model_dump()
+        {"$jsonSchema": {...}}
+    """
+
+    json_schema: dict[str, Any] = Field(
+        ..., description="JSON Schema document"
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$jsonSchema": self.json_schema}
+
+
+class Where(QueryOperator):
+    """
+    $where operator - matches using JavaScript expression.
+
+    Note: $where is slow and should be avoided when possible.
+
+    Example:
+        >>> Where(expression="this.credits == this.debits").model_dump()
+        {"$where": "this.credits == this.debits"}
+    """
+
+    expression: str = Field(..., description="JavaScript expression string")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$where": self.expression}
+
+
+class Text(QueryOperator):
+    """
+    $text operator - performs text search on indexed fields.
+
+    Example:
+        >>> Text(search="coffee shop", language="en").model_dump()
+        {"$text": {"$search": "coffee shop", "$language": "en"}}
+    """
+
+    search: str = Field(..., description="Text to search for")
+    language: str | None = Field(
+        default=None, description="Language for text search"
+    )
+    case_sensitive: bool | None = Field(
+        default=None,
+        serialization_alias="$caseSensitive",
+        description="Enable case sensitivity",
+    )
+    diacritic_sensitive: bool | None = Field(
+        default=None,
+        serialization_alias="$diacriticSensitive",
+        description="Enable diacritic sensitivity",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {"$search": self.search}
+        if self.language is not None:
+            result["$language"] = self.language
+        if self.case_sensitive is not None:
+            result["$caseSensitive"] = self.case_sensitive
+        if self.diacritic_sensitive is not None:
+            result["$diacriticSensitive"] = self.diacritic_sensitive
+        return {"$text": result}
