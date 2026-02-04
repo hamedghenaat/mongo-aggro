@@ -1,12 +1,14 @@
 # Accumulators
 
-Accumulators are used within the `$group` stage to compute values across grouped documents. Mongo Aggro provides typed accumulator classes that generate the correct MongoDB format.
+Accumulators are used within the `$group` stage to compute values across
+grouped documents. Mongo Aggro provides typed accumulator classes with
+IDE autocomplete and validation.
 
 ## Using Accumulators
 
-### With `merge_accumulators()`
+### With `merge_accumulators()` (Recommended)
 
-The recommended way to use accumulators:
+Use typed accumulator classes for better IDE support and validation:
 
 ```python
 from mongo_aggro import Group, Sum, Avg, Max, Min, merge_accumulators
@@ -22,9 +24,9 @@ Group(
 )
 ```
 
-### Direct Dictionary
+### Raw Dictionary
 
-You can also use dictionaries directly:
+For simple cases, raw dicts work too:
 
 ```python
 Group(

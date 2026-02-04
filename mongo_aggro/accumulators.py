@@ -452,21 +452,39 @@ class MinN(Accumulator):
 
 def merge_accumulators(*accumulators: Accumulator) -> dict[str, Any]:
     """
-    Merge multiple accumulators into a single dictionary for Group stage.
+    Combine typed accumulator instances into a dict for Group stage.
+
+    This helper provides type-safe accumulator definitions with IDE
+    autocomplete and validation, instead of writing raw MongoDB dicts.
+
+    Args:
+        *accumulators: Accumulator instances (Sum, Avg, Max, etc.)
+
+    Returns:
+        Combined dict suitable for Group's accumulators parameter.
 
     Example:
-        >>> merge_accumulators(
-        ...     Sum(name="total", field="amount"),
-        ...     Avg(name="average", field="amount"),
-        ...     Count_(name="count")
+        Using typed accumulators (recommended for type safety):
+
+        >>> Group(
+        ...     id="$category",
+        ...     accumulators=merge_accumulators(
+        ...         Sum(name="total", field="amount"),
+        ...         Avg(name="average", field="price"),
+        ...         Count_(name="count"),
+        ...     )
         ... )
-        {
-            "total": {
-                "$sum": "$amount"},
-                "average": {"$avg": "$amount"},
-                "count": {"$count": {}
-            }
-        }
+
+        Equivalent raw dict (less type safety):
+
+        >>> Group(
+        ...     id="$category",
+        ...     accumulators={
+        ...         "total": {"$sum": "$amount"},
+        ...         "average": {"$avg": "$price"},
+        ...         "count": {"$count": {}},
+        ...     }
+        ... )
     """
     result: dict[str, Any] = {}
     for acc in accumulators:

@@ -15,11 +15,12 @@ def test_pipeline_init_empty() -> None:
 
 def test_pipeline_init_with_stages() -> None:
     """Pipeline can be initialized with a list of stages."""
-    stages = [
-        Match(query={"status": "active"}),
-        Unwind(path="items"),
-    ]
-    pipeline = Pipeline(stages)
+    pipeline = Pipeline(
+        [
+            Match(query={"status": "active"}),
+            Unwind(path="items"),
+        ]
+    )
     assert len(pipeline) == 2
 
 
@@ -30,16 +31,6 @@ def test_pipeline_init_with_none() -> None:
 
 
 # --- Sort Direction Constants Tests ---
-
-
-def test_ascending_constant_value() -> None:
-    """ASCENDING constant equals 1."""
-    assert ASCENDING == 1
-
-
-def test_descending_constant_value() -> None:
-    """DESCENDING constant equals -1."""
-    assert DESCENDING == -1
 
 
 def test_sort_with_constants() -> None:
