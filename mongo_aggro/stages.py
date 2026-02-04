@@ -988,3 +988,654 @@ class Documents(BaseModel, BaseStage):
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
         return {"$documents": self.documents}
+
+
+class CollStats(BaseModel, BaseStage):
+    """
+    $collStats stage - returns collection statistics.
+
+    Example:
+        >>> CollStats(lat_stats={"histograms": True}).model_dump()
+        {"$collStats": {"latencyStats": {"histograms": True}}}
+
+        >>> CollStats(storage_stats={}).model_dump()
+        {"$collStats": {"storageStats": {}}}
+
+        >>> CollStats(count={}).model_dump()
+        {"$collStats": {"count": {}}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    lat_stats: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="latencyStats",
+        description="Latency statistics options",
+    )
+    storage_stats: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="storageStats",
+        description="Storage statistics options",
+    )
+    count: dict[str, Any] | None = Field(
+        default=None,
+        description="Document count options",
+    )
+    query_exec_stats: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="queryExecStats",
+        description="Query execution statistics options",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.lat_stats is not None:
+            result["latencyStats"] = self.lat_stats
+        if self.storage_stats is not None:
+            result["storageStats"] = self.storage_stats
+        if self.count is not None:
+            result["count"] = self.count
+        if self.query_exec_stats is not None:
+            result["queryExecStats"] = self.query_exec_stats
+        return {"$collStats": result}
+
+
+class IndexStats(BaseModel, BaseStage):
+    """
+    $indexStats stage - returns index usage statistics.
+
+    Example:
+        >>> IndexStats().model_dump()
+        {"$indexStats": {}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$indexStats": {}}
+
+
+class PlanCacheStats(BaseModel, BaseStage):
+    """
+    $planCacheStats stage - returns plan cache information.
+
+    Example:
+        >>> PlanCacheStats().model_dump()
+        {"$planCacheStats": {}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$planCacheStats": {}}
+
+
+class ListSessions(BaseModel, BaseStage):
+    """
+    $listSessions stage - lists all sessions in system.sessions.
+
+    Example:
+        >>> ListSessions().model_dump()
+        {"$listSessions": {}}
+
+        >>> ListSessions(users=[{"user": "admin", "db": "admin"}]).model_dump()
+        {"$listSessions": {"users": [{"user": "admin", "db": "admin"}]}}
+
+        >>> ListSessions(all_users=True).model_dump()
+        {"$listSessions": {"allUsers": True}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    users: list[dict[str, str]] | None = Field(
+        default=None,
+        description="List of users to filter sessions",
+    )
+    all_users: bool | None = Field(
+        default=None,
+        serialization_alias="allUsers",
+        description="Return sessions for all users",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.users is not None:
+            result["users"] = self.users
+        if self.all_users is not None:
+            result["allUsers"] = self.all_users
+        return {"$listSessions": result}
+
+
+class ListLocalSessions(BaseModel, BaseStage):
+    """
+    $listLocalSessions stage - lists local sessions (db.aggregate only).
+
+    Example:
+        >>> ListLocalSessions().model_dump()
+        {"$listLocalSessions": {}}
+
+        >>> ListLocalSessions(all_users=True).model_dump()
+        {"$listLocalSessions": {"allUsers": True}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    users: list[dict[str, str]] | None = Field(
+        default=None,
+        description="List of users to filter sessions",
+    )
+    all_users: bool | None = Field(
+        default=None,
+        serialization_alias="allUsers",
+        description="Return sessions for all users",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.users is not None:
+            result["users"] = self.users
+        if self.all_users is not None:
+            result["allUsers"] = self.all_users
+        return {"$listLocalSessions": result}
+
+
+class ListSampledQueries(BaseModel, BaseStage):
+    """
+    $listSampledQueries stage - lists sampled queries.
+
+    Example:
+        >>> ListSampledQueries().model_dump()
+        {"$listSampledQueries": {}}
+
+        >>> ListSampledQueries(namespace="db.collection").model_dump()
+        {"$listSampledQueries": {"namespace": "db.collection"}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    namespace: str | None = Field(
+        default=None,
+        description="Namespace to filter sampled queries",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.namespace is not None:
+            result["namespace"] = self.namespace
+        return {"$listSampledQueries": result}
+
+
+class ChangeStream(BaseModel, BaseStage):
+    """
+    $changeStream stage - returns a change stream cursor.
+
+    Must be the first stage in the pipeline.
+
+    Example:
+        >>> ChangeStream().model_dump()
+        {"$changeStream": {}}
+
+        >>> ChangeStream(full_document="updateLookup").model_dump()
+        {"$changeStream": {"fullDocument": "updateLookup"}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    full_document: (
+        Literal["default", "updateLookup", "whenAvailable", "required"] | None
+    ) = Field(
+        default=None,
+        serialization_alias="fullDocument",
+        description="Full document option for update events",
+    )
+    full_document_before_change: (
+        Literal["off", "whenAvailable", "required"] | None
+    ) = Field(
+        default=None,
+        serialization_alias="fullDocumentBeforeChange",
+        description="Include pre-image of modified document",
+    )
+    resume_after: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="resumeAfter",
+        description="Resume token to resume change stream",
+    )
+    start_after: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="startAfter",
+        description="Resume token to start after",
+    )
+    start_at_operation_time: Any | None = Field(
+        default=None,
+        serialization_alias="startAtOperationTime",
+        description="Timestamp to start watching changes",
+    )
+    all_changes_for_cluster: bool | None = Field(
+        default=None,
+        serialization_alias="allChangesForCluster",
+        description="Watch all changes for the cluster",
+    )
+    show_expanded_events: bool | None = Field(
+        default=None,
+        serialization_alias="showExpandedEvents",
+        description="Show expanded change events",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.full_document is not None:
+            result["fullDocument"] = self.full_document
+        if self.full_document_before_change is not None:
+            result["fullDocumentBeforeChange"] = (
+                self.full_document_before_change
+            )
+        if self.resume_after is not None:
+            result["resumeAfter"] = self.resume_after
+        if self.start_after is not None:
+            result["startAfter"] = self.start_after
+        if self.start_at_operation_time is not None:
+            result["startAtOperationTime"] = self.start_at_operation_time
+        if self.all_changes_for_cluster is not None:
+            result["allChangesForCluster"] = self.all_changes_for_cluster
+        if self.show_expanded_events is not None:
+            result["showExpandedEvents"] = self.show_expanded_events
+        return {"$changeStream": result}
+
+
+class ChangeStreamSplitLargeEvent(BaseModel, BaseStage):
+    """
+    $changeStreamSplitLargeEvent stage - splits large change events.
+
+    Must be the last stage in a $changeStream pipeline.
+
+    Example:
+        >>> ChangeStreamSplitLargeEvent().model_dump()
+        {"$changeStreamSplitLargeEvent": {}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$changeStreamSplitLargeEvent": {}}
+
+
+class CurrentOp(BaseModel, BaseStage):
+    """
+    $currentOp stage - returns current operations (db.aggregate only).
+
+    Example:
+        >>> CurrentOp().model_dump()
+        {"$currentOp": {}}
+
+        >>> CurrentOp(all_users=True, idle_connections=True).model_dump()
+        {"$currentOp": {"allUsers": True, "idleConnections": True}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    all_users: bool | None = Field(
+        default=None,
+        serialization_alias="allUsers",
+        description="Return operations for all users",
+    )
+    idle_connections: bool | None = Field(
+        default=None,
+        serialization_alias="idleConnections",
+        description="Include idle connections",
+    )
+    idle_cursors: bool | None = Field(
+        default=None,
+        serialization_alias="idleCursors",
+        description="Include idle cursors",
+    )
+    idle_sessions: bool | None = Field(
+        default=None,
+        serialization_alias="idleSessions",
+        description="Include idle sessions",
+    )
+    local_ops: bool | None = Field(
+        default=None,
+        serialization_alias="localOps",
+        description="Return local operations only",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.all_users is not None:
+            result["allUsers"] = self.all_users
+        if self.idle_connections is not None:
+            result["idleConnections"] = self.idle_connections
+        if self.idle_cursors is not None:
+            result["idleCursors"] = self.idle_cursors
+        if self.idle_sessions is not None:
+            result["idleSessions"] = self.idle_sessions
+        if self.local_ops is not None:
+            result["localOps"] = self.local_ops
+        return {"$currentOp": result}
+
+
+class ListClusterCatalog(BaseModel, BaseStage):
+    """
+    $listClusterCatalog stage - lists collections in a cluster.
+
+    Example:
+        >>> ListClusterCatalog().model_dump()
+        {"$listClusterCatalog": {}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$listClusterCatalog": {}}
+
+
+class ListSearchIndexes(BaseModel, BaseStage):
+    """
+    $listSearchIndexes stage - lists Atlas Search indexes.
+
+    Example:
+        >>> ListSearchIndexes().model_dump()
+        {"$listSearchIndexes": {}}
+
+        >>> ListSearchIndexes(id="index_id").model_dump()
+        {"$listSearchIndexes": {"id": "index_id"}}
+
+        >>> ListSearchIndexes(name="index_name").model_dump()
+        {"$listSearchIndexes": {"name": "index_name"}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    id: str | None = Field(
+        default=None,
+        description="Search index ID to filter",
+    )
+    name: str | None = Field(
+        default=None,
+        description="Search index name to filter",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.id is not None:
+            result["id"] = self.id
+        if self.name is not None:
+            result["name"] = self.name
+        return {"$listSearchIndexes": result}
+
+
+class Search(BaseModel, BaseStage):
+    """
+    $search stage - Atlas full-text search.
+
+    Example:
+        >>> Search(index="default", text={"query": "coffee", "path": "title"}).model_dump()
+        {"$search": {"index": "default", "text": {"query": "coffee", "path": "title"}}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    index: str | None = Field(
+        default=None,
+        description="Name of the Atlas Search index",
+    )
+    text: dict[str, Any] | None = Field(
+        default=None,
+        description="Text search operator",
+    )
+    compound: dict[str, Any] | None = Field(
+        default=None,
+        description="Compound search operator",
+    )
+    autocomplete: dict[str, Any] | None = Field(
+        default=None,
+        description="Autocomplete search operator",
+    )
+    phrase: dict[str, Any] | None = Field(
+        default=None,
+        description="Phrase search operator",
+    )
+    wildcard: dict[str, Any] | None = Field(
+        default=None,
+        description="Wildcard search operator",
+    )
+    regex: dict[str, Any] | None = Field(
+        default=None,
+        description="Regex search operator",
+    )
+    near: dict[str, Any] | None = Field(
+        default=None,
+        description="Near search operator",
+    )
+    range: dict[str, Any] | None = Field(
+        default=None,
+        description="Range search operator",
+    )
+    exists: dict[str, Any] | None = Field(
+        default=None,
+        description="Exists search operator",
+    )
+    equals: dict[str, Any] | None = Field(
+        default=None,
+        description="Equals search operator",
+    )
+    more_like_this: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="moreLikeThis",
+        description="More like this search operator",
+    )
+    query_string: dict[str, Any] | None = Field(
+        default=None,
+        serialization_alias="queryString",
+        description="Query string search operator",
+    )
+    highlight: dict[str, Any] | None = Field(
+        default=None,
+        description="Highlight options",
+    )
+    count: dict[str, Any] | None = Field(
+        default=None,
+        description="Count options",
+    )
+    return_stored_source: bool | None = Field(
+        default=None,
+        serialization_alias="returnStoredSource",
+        description="Return stored source",
+    )
+
+    def _add_operators(self, result: dict[str, Any]) -> None:
+        """Add search operators to result dict."""
+        if self.text is not None:
+            result["text"] = self.text
+        if self.compound is not None:
+            result["compound"] = self.compound
+        if self.autocomplete is not None:
+            result["autocomplete"] = self.autocomplete
+        if self.phrase is not None:
+            result["phrase"] = self.phrase
+        if self.wildcard is not None:
+            result["wildcard"] = self.wildcard
+        if self.regex is not None:
+            result["regex"] = self.regex
+        if self.near is not None:
+            result["near"] = self.near
+        if self.range is not None:
+            result["range"] = self.range
+
+    def _add_advanced(self, result: dict[str, Any]) -> None:
+        """Add advanced search options to result dict."""
+        if self.exists is not None:
+            result["exists"] = self.exists
+        if self.equals is not None:
+            result["equals"] = self.equals
+        if self.more_like_this is not None:
+            result["moreLikeThis"] = self.more_like_this
+        if self.query_string is not None:
+            result["queryString"] = self.query_string
+        if self.highlight is not None:
+            result["highlight"] = self.highlight
+        if self.count is not None:
+            result["count"] = self.count
+        if self.return_stored_source is not None:
+            result["returnStoredSource"] = self.return_stored_source
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.index is not None:
+            result["index"] = self.index
+        self._add_operators(result)
+        self._add_advanced(result)
+        return {"$search": result}
+
+
+class SearchMeta(BaseModel, BaseStage):
+    """
+    $searchMeta stage - returns Atlas Search metadata.
+
+    Example:
+        >>> SearchMeta(index="default", count={"type": "total"}).model_dump()
+        {"$searchMeta": {"index": "default", "count": {"type": "total"}}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    index: str | None = Field(
+        default=None,
+        description="Name of the Atlas Search index",
+    )
+    count: dict[str, Any] | None = Field(
+        default=None,
+        description="Count options",
+    )
+    facet: dict[str, Any] | None = Field(
+        default=None,
+        description="Facet options",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        if self.index is not None:
+            result["index"] = self.index
+        if self.count is not None:
+            result["count"] = self.count
+        if self.facet is not None:
+            result["facet"] = self.facet
+        return {"$searchMeta": result}
+
+
+class VectorSearch(BaseModel, BaseStage):
+    """
+    $vectorSearch stage - Atlas vector search (MongoDB 7.0.2+).
+
+    Example:
+        >>> VectorSearch(
+        ...     index="vector_index",
+        ...     path="embedding",
+        ...     query_vector=[0.1, 0.2, 0.3],
+        ...     num_candidates=100,
+        ...     limit=10
+        ... ).model_dump()
+        {"$vectorSearch": {
+            "index": "vector_index",
+            "path": "embedding",
+            "queryVector": [0.1, 0.2, 0.3],
+            "numCandidates": 100,
+            "limit": 10
+        }}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    index: str = Field(
+        ...,
+        description="Name of the Atlas Vector Search index",
+    )
+    path: str = Field(
+        ...,
+        description="Field path containing the vector",
+    )
+    query_vector: list[float] = Field(
+        ...,
+        serialization_alias="queryVector",
+        description="Query vector for similarity search",
+    )
+    num_candidates: int = Field(
+        ...,
+        serialization_alias="numCandidates",
+        description="Number of candidates to consider",
+    )
+    limit: int = Field(
+        ...,
+        description="Maximum number of results to return",
+    )
+    filter: dict[str, Any] | None = Field(
+        default=None,
+        description="Pre-filter for vector search",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "index": self.index,
+            "path": self.path,
+            "queryVector": self.query_vector,
+            "numCandidates": self.num_candidates,
+            "limit": self.limit,
+        }
+        if self.filter is not None:
+            result["filter"] = self.filter
+        return {"$vectorSearch": result}
+
+
+class QuerySettings(BaseModel, BaseStage):
+    """
+    $querySettings stage - returns query settings (MongoDB 8.0+).
+
+    Example:
+        >>> QuerySettings().model_dump()
+        {"$querySettings": {}}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        return {"$querySettings": {}}
+
+
+class RankFusion(BaseModel, BaseStage):
+    """
+    $rankFusion stage - combines ranked results from multiple pipelines.
+
+    Example:
+        >>> RankFusion(
+        ...     input={"search": [...], "vector": [...]},
+        ...     combination={"weights": {"search": 0.7, "vector": 0.3}}
+        ... ).model_dump()
+        {"$rankFusion": {
+            "input": {"search": [...], "vector": [...]},
+            "combination": {"weights": {"search": 0.7, "vector": 0.3}}
+        }}
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    input: dict[str, list[dict[str, Any]]] = Field(
+        ...,
+        description="Named input pipelines",
+    )
+    combination: dict[str, Any] | None = Field(
+        default=None,
+        description="Combination options",
+    )
+    score_details: bool | None = Field(
+        default=None,
+        serialization_alias="scoreDetails",
+        description="Include score details",
+    )
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result: dict[str, Any] = {"input": self.input}
+        if self.combination is not None:
+            result["combination"] = self.combination
+        if self.score_details is not None:
+            result["scoreDetails"] = self.score_details
+        return {"$rankFusion": result}

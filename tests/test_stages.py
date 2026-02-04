@@ -717,3 +717,335 @@ def test_documents() -> None:
             {"x": 3, "y": 4},
         ]
     }
+
+
+# --- Statistics Stage Tests ---
+
+
+def test_coll_stats_latency() -> None:
+    """CollStats with latency stats."""
+    from mongo_aggro import CollStats
+
+    stats = CollStats(lat_stats={"histograms": True})
+    assert stats.model_dump() == {
+        "$collStats": {"latencyStats": {"histograms": True}}
+    }
+
+
+def test_coll_stats_storage() -> None:
+    """CollStats with storage stats."""
+    from mongo_aggro import CollStats
+
+    stats = CollStats(storage_stats={})
+    assert stats.model_dump() == {"$collStats": {"storageStats": {}}}
+
+
+def test_coll_stats_count() -> None:
+    """CollStats with count."""
+    from mongo_aggro import CollStats
+
+    stats = CollStats(count={})
+    assert stats.model_dump() == {"$collStats": {"count": {}}}
+
+
+def test_coll_stats_multiple() -> None:
+    """CollStats with multiple options."""
+    from mongo_aggro import CollStats
+
+    stats = CollStats(
+        lat_stats={"histograms": True},
+        storage_stats={},
+        count={},
+    )
+    result = stats.model_dump()
+    assert result == {
+        "$collStats": {
+            "latencyStats": {"histograms": True},
+            "storageStats": {},
+            "count": {},
+        }
+    }
+
+
+def test_index_stats() -> None:
+    """IndexStats stage."""
+    from mongo_aggro import IndexStats
+
+    stats = IndexStats()
+    assert stats.model_dump() == {"$indexStats": {}}
+
+
+def test_plan_cache_stats() -> None:
+    """PlanCacheStats stage."""
+    from mongo_aggro import PlanCacheStats
+
+    stats = PlanCacheStats()
+    assert stats.model_dump() == {"$planCacheStats": {}}
+
+
+# --- Session Stage Tests ---
+
+
+def test_list_sessions_empty() -> None:
+    """ListSessions with no filters."""
+    from mongo_aggro import ListSessions
+
+    sessions = ListSessions()
+    assert sessions.model_dump() == {"$listSessions": {}}
+
+
+def test_list_sessions_users() -> None:
+    """ListSessions with users filter."""
+    from mongo_aggro import ListSessions
+
+    sessions = ListSessions(users=[{"user": "admin", "db": "admin"}])
+    assert sessions.model_dump() == {
+        "$listSessions": {"users": [{"user": "admin", "db": "admin"}]}
+    }
+
+
+def test_list_sessions_all_users() -> None:
+    """ListSessions with allUsers."""
+    from mongo_aggro import ListSessions
+
+    sessions = ListSessions(all_users=True)
+    assert sessions.model_dump() == {"$listSessions": {"allUsers": True}}
+
+
+def test_list_local_sessions() -> None:
+    """ListLocalSessions stage."""
+    from mongo_aggro import ListLocalSessions
+
+    sessions = ListLocalSessions(all_users=True)
+    assert sessions.model_dump() == {"$listLocalSessions": {"allUsers": True}}
+
+
+def test_list_sampled_queries() -> None:
+    """ListSampledQueries stage."""
+    from mongo_aggro import ListSampledQueries
+
+    queries = ListSampledQueries(namespace="test.users")
+    assert queries.model_dump() == {
+        "$listSampledQueries": {"namespace": "test.users"}
+    }
+
+
+# --- Change Stream Stage Tests ---
+
+
+def test_change_stream_empty() -> None:
+    """ChangeStream with no options."""
+    from mongo_aggro import ChangeStream
+
+    stream = ChangeStream()
+    assert stream.model_dump() == {"$changeStream": {}}
+
+
+def test_change_stream_full_document() -> None:
+    """ChangeStream with fullDocument option."""
+    from mongo_aggro import ChangeStream
+
+    stream = ChangeStream(full_document="updateLookup")
+    assert stream.model_dump() == {
+        "$changeStream": {"fullDocument": "updateLookup"}
+    }
+
+
+def test_change_stream_options() -> None:
+    """ChangeStream with multiple options."""
+    from mongo_aggro import ChangeStream
+
+    stream = ChangeStream(
+        full_document="whenAvailable",
+        full_document_before_change="required",
+        show_expanded_events=True,
+    )
+    assert stream.model_dump() == {
+        "$changeStream": {
+            "fullDocument": "whenAvailable",
+            "fullDocumentBeforeChange": "required",
+            "showExpandedEvents": True,
+        }
+    }
+
+
+def test_change_stream_split_large_event() -> None:
+    """ChangeStreamSplitLargeEvent stage."""
+    from mongo_aggro import ChangeStreamSplitLargeEvent
+
+    split = ChangeStreamSplitLargeEvent()
+    assert split.model_dump() == {"$changeStreamSplitLargeEvent": {}}
+
+
+# --- Admin Stage Tests ---
+
+
+def test_current_op_empty() -> None:
+    """CurrentOp with no options."""
+    from mongo_aggro import CurrentOp
+
+    op = CurrentOp()
+    assert op.model_dump() == {"$currentOp": {}}
+
+
+def test_current_op_options() -> None:
+    """CurrentOp with options."""
+    from mongo_aggro import CurrentOp
+
+    op = CurrentOp(all_users=True, idle_connections=True)
+    assert op.model_dump() == {
+        "$currentOp": {"allUsers": True, "idleConnections": True}
+    }
+
+
+def test_list_cluster_catalog() -> None:
+    """ListClusterCatalog stage."""
+    from mongo_aggro import ListClusterCatalog
+
+    catalog = ListClusterCatalog()
+    assert catalog.model_dump() == {"$listClusterCatalog": {}}
+
+
+def test_list_search_indexes_empty() -> None:
+    """ListSearchIndexes with no filter."""
+    from mongo_aggro import ListSearchIndexes
+
+    indexes = ListSearchIndexes()
+    assert indexes.model_dump() == {"$listSearchIndexes": {}}
+
+
+def test_list_search_indexes_by_name() -> None:
+    """ListSearchIndexes by name."""
+    from mongo_aggro import ListSearchIndexes
+
+    indexes = ListSearchIndexes(name="my_index")
+    assert indexes.model_dump() == {"$listSearchIndexes": {"name": "my_index"}}
+
+
+# --- Atlas Search Stage Tests ---
+
+
+def test_search_text() -> None:
+    """Search with text operator."""
+    from mongo_aggro import Search
+
+    search = Search(index="default", text={"query": "coffee", "path": "title"})
+    assert search.model_dump() == {
+        "$search": {
+            "index": "default",
+            "text": {"query": "coffee", "path": "title"},
+        }
+    }
+
+
+def test_search_compound() -> None:
+    """Search with compound operator."""
+    from mongo_aggro import Search
+
+    search = Search(
+        index="default",
+        compound={
+            "must": [{"text": {"query": "coffee", "path": "title"}}],
+            "should": [{"text": {"query": "organic", "path": "description"}}],
+        },
+    )
+    assert search.model_dump() == {
+        "$search": {
+            "index": "default",
+            "compound": {
+                "must": [{"text": {"query": "coffee", "path": "title"}}],
+                "should": [
+                    {"text": {"query": "organic", "path": "description"}}
+                ],
+            },
+        }
+    }
+
+
+def test_search_meta() -> None:
+    """SearchMeta stage."""
+    from mongo_aggro import SearchMeta
+
+    meta = SearchMeta(index="default", count={"type": "total"})
+    assert meta.model_dump() == {
+        "$searchMeta": {"index": "default", "count": {"type": "total"}}
+    }
+
+
+def test_vector_search() -> None:
+    """VectorSearch stage."""
+    from mongo_aggro import VectorSearch
+
+    search = VectorSearch(
+        index="vector_index",
+        path="embedding",
+        query_vector=[0.1, 0.2, 0.3],
+        num_candidates=100,
+        limit=10,
+    )
+    assert search.model_dump() == {
+        "$vectorSearch": {
+            "index": "vector_index",
+            "path": "embedding",
+            "queryVector": [0.1, 0.2, 0.3],
+            "numCandidates": 100,
+            "limit": 10,
+        }
+    }
+
+
+def test_vector_search_with_filter() -> None:
+    """VectorSearch with filter."""
+    from mongo_aggro import VectorSearch
+
+    search = VectorSearch(
+        index="vector_index",
+        path="embedding",
+        query_vector=[0.1, 0.2, 0.3],
+        num_candidates=100,
+        limit=10,
+        filter={"category": "tech"},
+    )
+    assert search.model_dump() == {
+        "$vectorSearch": {
+            "index": "vector_index",
+            "path": "embedding",
+            "queryVector": [0.1, 0.2, 0.3],
+            "numCandidates": 100,
+            "limit": 10,
+            "filter": {"category": "tech"},
+        }
+    }
+
+
+# --- Advanced Stage Tests ---
+
+
+def test_query_settings() -> None:
+    """QuerySettings stage."""
+    from mongo_aggro import QuerySettings
+
+    settings = QuerySettings()
+    assert settings.model_dump() == {"$querySettings": {}}
+
+
+def test_rank_fusion() -> None:
+    """RankFusion stage."""
+    from mongo_aggro import RankFusion
+
+    fusion = RankFusion(
+        input={
+            "search": [{"$match": {"status": "active"}}],
+            "vector": [{"$match": {"category": "tech"}}],
+        },
+        combination={"weights": {"search": 0.7, "vector": 0.3}},
+    )
+    assert fusion.model_dump() == {
+        "$rankFusion": {
+            "input": {
+                "search": [{"$match": {"status": "active"}}],
+                "vector": [{"$match": {"category": "tech"}}],
+            },
+            "combination": {"weights": {"search": 0.7, "vector": 0.3}},
+        }
+    }

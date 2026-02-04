@@ -162,3 +162,95 @@ This page documents all aggregation stage classes.
     options:
       show_root_heading: true
       heading_level: 3
+
+## Statistics Stages
+
+::: mongo_aggro.CollStats
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.IndexStats
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.PlanCacheStats
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Session Stages
+
+::: mongo_aggro.ListSessions
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ListLocalSessions
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ListSampledQueries
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Change Stream Stages
+
+::: mongo_aggro.ChangeStream
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ChangeStreamSplitLargeEvent
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Admin Stages
+
+::: mongo_aggro.CurrentOp
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ListClusterCatalog
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.ListSearchIndexes
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Atlas Search Stages
+
+::: mongo_aggro.Search
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.SearchMeta
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.VectorSearch
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+## Advanced Stages
+
+::: mongo_aggro.QuerySettings
+    options:
+      show_root_heading: true
+      heading_level: 3
+
+::: mongo_aggro.RankFusion
+    options:
+      show_root_heading: true
+      heading_level: 3

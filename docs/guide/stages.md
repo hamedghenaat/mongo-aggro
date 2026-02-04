@@ -368,3 +368,277 @@ GeoNear(
     spherical=True
 )
 ```
+
+## Statistics Stages
+
+### CollStats
+
+Returns collection statistics.
+
+```python
+from mongo_aggro import CollStats
+
+# Latency statistics with histograms
+CollStats(lat_stats={"histograms": True})
+# {"$collStats": {"latencyStats": {"histograms": True}}}
+
+# Storage and count statistics
+CollStats(storage_stats={}, count={})
+# {"$collStats": {"storageStats": {}, "count": {}}}
+```
+
+### IndexStats
+
+Returns index usage statistics.
+
+```python
+from mongo_aggro import IndexStats
+
+IndexStats()
+# {"$indexStats": {}}
+```
+
+### PlanCacheStats
+
+Returns query plan cache information.
+
+```python
+from mongo_aggro import PlanCacheStats
+
+PlanCacheStats()
+# {"$planCacheStats": {}}
+```
+
+## Session Stages
+
+### ListSessions
+
+Lists sessions in system.sessions collection.
+
+```python
+from mongo_aggro import ListSessions
+
+# All sessions for current user
+ListSessions()
+# {"$listSessions": {}}
+
+# Sessions for all users (requires privileges)
+ListSessions(all_users=True)
+# {"$listSessions": {"allUsers": True}}
+
+# Sessions for specific users
+ListSessions(users=[{"user": "admin", "db": "admin"}])
+# {"$listSessions": {"users": [{"user": "admin", "db": "admin"}]}}
+```
+
+### ListLocalSessions
+
+Lists sessions on current mongos/mongod (db.aggregate only).
+
+```python
+from mongo_aggro import ListLocalSessions
+
+ListLocalSessions(all_users=True)
+# {"$listLocalSessions": {"allUsers": True}}
+```
+
+### ListSampledQueries
+
+Lists sampled queries for query analysis.
+
+```python
+from mongo_aggro import ListSampledQueries
+
+# All sampled queries
+ListSampledQueries()
+# {"$listSampledQueries": {}}
+
+# Queries for specific namespace
+ListSampledQueries(namespace="mydb.users")
+# {"$listSampledQueries": {"namespace": "mydb.users"}}
+```
+
+## Change Stream Stages
+
+### ChangeStream
+
+Opens a change stream cursor (must be first stage).
+
+```python
+from mongo_aggro import ChangeStream
+
+# Basic change stream
+ChangeStream()
+# {"$changeStream": {}}
+
+# With full document on update
+ChangeStream(full_document="updateLookup")
+# {"$changeStream": {"fullDocument": "updateLookup"}}
+
+# With pre-image and expanded events
+ChangeStream(
+    full_document="whenAvailable",
+    full_document_before_change="required",
+    show_expanded_events=True
+)
+```
+
+### ChangeStreamSplitLargeEvent
+
+Splits large change events (>16MB) into fragments.
+
+```python
+from mongo_aggro import ChangeStreamSplitLargeEvent
+
+ChangeStreamSplitLargeEvent()
+# {"$changeStreamSplitLargeEvent": {}}
+```
+
+## Admin Stages
+
+### CurrentOp
+
+Returns current operations (db.aggregate only).
+
+```python
+from mongo_aggro import CurrentOp
+
+# All operations
+CurrentOp()
+# {"$currentOp": {}}
+
+# Include idle connections and all users
+CurrentOp(all_users=True, idle_connections=True)
+# {"$currentOp": {"allUsers": True, "idleConnections": True}}
+```
+
+### ListClusterCatalog
+
+Lists collections in a sharded cluster.
+
+```python
+from mongo_aggro import ListClusterCatalog
+
+ListClusterCatalog()
+# {"$listClusterCatalog": {}}
+```
+
+### ListSearchIndexes
+
+Lists Atlas Search indexes on a collection.
+
+```python
+from mongo_aggro import ListSearchIndexes
+
+# All search indexes
+ListSearchIndexes()
+# {"$listSearchIndexes": {}}
+
+# Specific index by name
+ListSearchIndexes(name="my_search_index")
+# {"$listSearchIndexes": {"name": "my_search_index"}}
+```
+
+## Atlas Search Stages
+
+### Search
+
+Performs full-text search on Atlas Search indexes.
+
+```python
+from mongo_aggro import Search
+
+# Text search
+Search(index="default", text={"query": "coffee shop", "path": "description"})
+# {"$search": {"index": "default", "text": {...}}}
+
+# Compound search with must/should
+Search(
+    index="default",
+    compound={
+        "must": [{"text": {"query": "coffee", "path": "title"}}],
+        "should": [{"text": {"query": "organic", "path": "tags"}}]
+    }
+)
+
+# Autocomplete
+Search(index="autocomplete", autocomplete={"query": "cof", "path": "name"})
+```
+
+### SearchMeta
+
+Returns Atlas Search metadata (counts, facets).
+
+```python
+from mongo_aggro import SearchMeta
+
+# Total count
+SearchMeta(index="default", count={"type": "total"})
+# {"$searchMeta": {"index": "default", "count": {"type": "total"}}}
+
+# Facet results
+SearchMeta(index="default", facet={
+    "operator": {"text": {"query": "coffee", "path": "description"}},
+    "facets": {"categories": {"type": "string", "path": "category"}}
+})
+```
+
+### VectorSearch
+
+Performs vector similarity search (MongoDB 7.0.2+, Atlas only).
+
+```python
+from mongo_aggro import VectorSearch
+
+VectorSearch(
+    index="vector_index",
+    path="embedding",
+    query_vector=[0.1, 0.2, 0.3, 0.4, 0.5],
+    num_candidates=100,
+    limit=10
+)
+# {"$vectorSearch": {...}}
+
+# With pre-filter
+VectorSearch(
+    index="vector_index",
+    path="embedding",
+    query_vector=[0.1, 0.2, 0.3],
+    num_candidates=50,
+    limit=5,
+    filter={"category": "electronics"}
+)
+```
+
+## Advanced Stages
+
+### QuerySettings
+
+Returns query settings (MongoDB 8.0+).
+
+```python
+from mongo_aggro import QuerySettings
+
+QuerySettings()
+# {"$querySettings": {}}
+```
+
+### RankFusion
+
+Combines ranked results from multiple pipelines using Reciprocal Rank Fusion.
+
+```python
+from mongo_aggro import RankFusion
+
+RankFusion(
+    input={
+        "text_search": [
+            {"$search": {"text": {"query": "coffee", "path": "title"}}}
+        ],
+        "vector_search": [
+            {"$vectorSearch": {"index": "vectors", "path": "embedding"}}
+        ]
+    },
+    combination={"weights": {"text_search": 0.6, "vector_search": 0.4}}
+)
+```
